@@ -1,0 +1,61 @@
+---
+title: "Compatibility"
+source: "docs/compatibility.md"
+---
+
+How far each row has been verified:
+
+- **Verified (Azure)**: run against a real deployment of this package (Flex Consumption, japaneast, Node 22). The record is the HTTP suite of `packages/tests-e2e` with `E2E_TARGET=standalone` (47 passed on 2026-11-08; five host-log cases that no longer exist were skipped then) and the measurements in ADR-0016; an earlier spike of the same design gave the same results.
+- **Verified (local)**: run with Azurite and the Azure Functions host on a developer machine and in CI (`pnpm e2e:standalone`).
+- **Unverified**: implemented or expected to work, but never run.
+
+## Next.js
+
+| Version | Status |
+| --- | --- |
+| 15.5.29 | Verified (Azure) and in CI |
+| 16.4.5 | Verified (local, and in CI); **Unverified on Azure** |
+| 15.5.30 and later 15.x | Expected to work (inside the supported range); only 15.5.29 was run |
+| 16.0.0 to 16.4.4 | Not supported (`package` refuses; `--allow-unsupported-next` overrides) |
+| Older than 15.5.29 | Not supported |
+
+The range is the `next` peer range of the package, inherited from the first design and not re-derived.
+
+## Features
+
+| Feature | Status |
+| --- | --- |
+| App Router: dynamic rendering (SSR), route handlers, dynamic routes | Verified (Azure) |
+| Pages Router: `getServerSideProps`, `getStaticProps`, API routes, `fallback: "blocking"` and `true`, `notFound`, `res.revalidate` | Verified (Azure) |
+| Static pages and time-based ISR (`revalidate`) | Verified (Azure): stale page served at once, the next request gets the new one. Regeneration runs in the same process as the stale request (no queue). |
+| `revalidateTag`, `revalidatePath` | Verified (Azure) |
+| `'use cache'` with `cacheTag` and `revalidateTag` | Verified (Azure) on Next.js 15 with `experimental.useCache`. `cacheComponents` (16) with Partial Prerendering: **Unverified** with this design. `cacheLife` expiry and the `remote` and `private` variants: untested. |
+| Response streaming (Suspense) | Verified (Azure) |
+| Middleware (redirect, rewrite, headers), including the Next.js 16 `proxy` convention | Verified (Azure) for `middleware`; `proxy`: **Unverified**. Edge-runtime middleware: not supported. |
+| Server Actions | Verified (Azure): form post and the `Next-Action` call. `package` warns when no stable `NEXT_SERVER_ACTIONS_ENCRYPTION_KEY` is set. A deployment over an older build: **Unverified**. |
+| `after()` | Verified (Azure): the response is held open until the work is done (`--wait-until hold`, the default). `detach`: **Unverified** with this design. |
+| Image optimization (`next/image`) | Verified (Azure): resize, WebP, rejection of bad sizes and remote URLs not allowed, with the Linux `sharp`. A missing source image answers **400** (Next.js's own answer on 15). Next.js's disk cache for optimized images is off (the app directory is read-only), so an optimized image is made again after an instance restarts. |
+| Cookies (several `Set-Cookie`) | Verified (Azure) |
+| Static files (`/_next/static`, `public/`) | Verified (Azure): served by the Next.js server from the package, with its `ETag` and `Cache-Control`. They are **not** in Blob or a CDN, so every request is a function execution. |
+| Pages prerendered by `next build` | They are not read from the build output: with a custom cache handler Next.js renders each on its first request. `deploy` primes them. Verified (Azure). |
+| Edge runtime | Not supported |
+| Front Door | Template compiles; **never deployed**. The `X-Azure-FDID` check of the entry: Verified (local) by unit test only. |
+
+## Platform
+
+| Item | Status |
+| --- | --- |
+| Azure Functions Flex Consumption, Node 22 | Verified (Azure). Node 24: Unverified. |
+| Run from package: the app directory is read-only | Verified (Azure): the image optimizer's disk cache failed with `EACCES` until it was turned off. |
+| Package without symbolic links | Verified (Azure): `package` flattens the pnpm layout into a plain tree and refuses to produce a package that still has links. npm and Yarn layouts: Unverified. |
+| Cold start | One sample, client in Japan: **2.4 s** for the first request after about 11 minutes idle (2.5 s in the earlier spike), 0.1 to 0.2 s warm. Always-ready: **not measured** with this package. |
+| Load | 300 requests at 30 parallel: all 200; dynamic page p95 0.29 s, ISR page p95 0.86 s (one sample). |
+| Scale-out | Cache and tags are shared through Storage. After `revalidateTag`, parallel requests can each regenerate (ten different values within 70 ms in one test); the cache converges on the last write. |
+
+## Known gaps
+
+- Concurrent regeneration after a revalidation is not coalesced.
+- `after()` work cannot be tied to one request: a response may also wait for work that other requests started earlier (at most 220 s).
+- Absolute URLs that application code builds from `request.url` in middleware and writes into a response body show the loopback origin (`http://localhost:3000`); a redirect's `Location` header is corrected.
+- Next.js 16 on Azure, Front Door, always-ready and the `proxy` convention with this design are untested.
+- The behavior differences against OpenNext that come from Next.js's own server are listed in [Comparison](./comparison.md).
