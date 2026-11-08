@@ -1,6 +1,6 @@
 # next-on-azure documentation site
 
-The documentation of [next-on-azure](../opennextjs-azure-fjtd) as a website. Structure and design follow the documentation of OpenNext (opennext.js.org): a sidebar, breadcrumbs, "On This Page", previous and next links, search (⌘K), light and dark themes.
+The documentation of next-on-azure as a website. Structure and design follow the documentation of OpenNext (opennext.js.org): a sidebar, breadcrumbs, "On This Page", previous and next links, search (⌘K), light and dark themes.
 
 The site is a Next.js (App Router) app that renders Markdown from `content/` at build time, and it is built and run with next-on-azure itself.
 

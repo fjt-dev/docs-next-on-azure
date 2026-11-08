@@ -10,7 +10,15 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const repo = path.resolve(process.env.NEXT_ON_AZURE_REPO ?? path.join(here, "../../opennextjs-azure-fjtd"));
+// The repository of next-on-azure: the argument or NEXT_ON_AZURE_REPO, else a sibling directory.
+function findRepo(argument) {
+  if (argument) return path.resolve(argument);
+  const parent = path.join(here, "../..");
+  return path.resolve(
+    ["next-on-azure", "opennextjs-azure-fjtd"].map((name) => path.join(parent, name)).find((dir) => fs.existsSync(dir)) ?? path.join(parent, "next-on-azure"),
+  );
+}
+const repo = findRepo(process.env.NEXT_ON_AZURE_REPO);
 const app = path.join(here, "../.next-azure/app");
 const azurite = path.join(repo, "node_modules/.bin/azurite");
 const func = path.join(repo, "node_modules/azure-functions-core-tools/bin/func");
