@@ -1,15 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { type Preference, applyPreference, readPreference, savePreference } from "@/lib/theme";
 import { useLang } from "@/lib/use-lang";
 import { Dropdown } from "./Dropdown";
-
-type Preference = "light" | "dark" | "system";
-
-function apply(preference: Preference) {
-  const dark = preference === "dark" || (preference === "system" && matchMedia("(prefers-color-scheme: dark)").matches);
-  document.documentElement.dataset.theme = dark ? "dark" : "light";
-}
 
 const svg = { width: 20, height: 20, viewBox: "0 0 20 20", fill: "none", stroke: "currentColor", strokeWidth: 1.6, strokeLinecap: "round", strokeLinejoin: "round", "aria-hidden": true } as const;
 
@@ -44,31 +38,22 @@ export function ThemeMenu() {
   const [preference, setPreference] = useState<Preference>("system");
 
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem("theme");
-      if (saved === "light" || saved === "dark" || saved === "system") setPreference(saved);
-    } catch {
-      // storage can be blocked; the page then follows the device
-    }
+    setPreference(readPreference());
   }, []);
 
   // While the preference is "device default", follow the operating system.
   useEffect(() => {
     if (preference !== "system") return;
     const query = matchMedia("(prefers-color-scheme: dark)");
-    const onChange = () => apply("system");
+    const onChange = () => applyPreference("system");
     query.addEventListener("change", onChange);
     return () => query.removeEventListener("change", onChange);
   }, [preference]);
 
   const choose = (next: Preference) => {
     setPreference(next);
-    apply(next);
-    try {
-      localStorage.setItem("theme", next);
-    } catch {
-      // ignore
-    }
+    applyPreference(next);
+    savePreference(next);
   };
 
   const options: { value: Preference; label: string }[] = [

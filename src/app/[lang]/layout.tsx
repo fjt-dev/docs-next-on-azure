@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 import { Header } from "@/components/Header";
 import { Sidebar } from "@/components/Sidebar";
+import { ThemeSync } from "@/components/ThemeSync";
 import { isLang, langs, ui } from "@/lib/i18n";
 import "../globals.css";
 
@@ -37,11 +38,14 @@ export default async function RootLayout({ children, params }: { children: React
   const { lang } = await params;
   if (!isLang(lang)) notFound();
   return (
-    <html lang={lang} data-theme="dark" suppressHydrationWarning>
+    // No data-theme here: the script below sets it, and React would put the server value back on every
+    // client-side navigation (for example when the language changes).
+    <html lang={lang} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body>
+        <ThemeSync />
         <Header lang={lang} />
         <div className="shell">
           <Sidebar />
