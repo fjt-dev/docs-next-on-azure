@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useLang } from "@/lib/use-lang";
 
 type Preference = "system" | "light" | "dark";
 const order: Preference[] = ["system", "light", "dark"];
@@ -11,6 +12,7 @@ function apply(preference: Preference) {
 }
 
 export function ThemeToggle() {
+  const { t } = useLang();
   const [preference, setPreference] = useState<Preference>("system");
 
   useEffect(() => {
@@ -43,7 +45,7 @@ export function ThemeToggle() {
   };
 
   return (
-    <button type="button" className="theme-toggle" onClick={choose} aria-label={`Theme: ${preference}. Click to change.`}>
+    <button type="button" className="theme-toggle" onClick={choose} aria-label={t.themeLabel(preference === "system" ? t.themeSystem : preference === "light" ? t.themeLight : t.themeDark)}>
       <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
         {preference === "light" ? (
           <>
@@ -59,7 +61,7 @@ export function ThemeToggle() {
           </>
         )}
       </svg>
-      <span>{preference === "system" ? "System" : preference === "light" ? "Light" : "Dark"}</span>
+      <span>{preference === "system" ? t.themeSystem : preference === "light" ? t.themeLight : t.themeDark}</span>
     </button>
   );
 }

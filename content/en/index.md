@@ -24,7 +24,7 @@ Every statement about behavior on Azure is marked **Verified (Azure)**, **Verifi
 - `'use cache'` with tags (Azure)
 - Middleware, Server Actions, `after()` (Azure)
 - Image optimization with `sharp` (Azure)
-- Next.js 15.5.29 (Azure) and 16.4.5 (local and CI; not on Azure)
+- Next.js 15.5.29 and 16.4.5 (Azure; also local and CI)
 
 Not checked: Front Door, always-ready instances, Partial Prerendering with this design. Not supported: the Edge runtime.
 

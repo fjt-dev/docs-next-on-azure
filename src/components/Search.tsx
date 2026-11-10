@@ -3,6 +3,8 @@
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { SearchEntry } from "@/lib/content";
+import { withLang } from "@/lib/i18n";
+import { useLang } from "@/lib/use-lang";
 
 type Hit = { route: string; title: string; context: string; score: number; id?: string };
 
@@ -46,6 +48,7 @@ function search(index: SearchEntry[], query: string): Hit[] {
 }
 
 export function Search() {
+  const { lang, t } = useLang();
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -76,23 +79,26 @@ export function Search() {
     if (!open) return;
     input.current?.focus();
     if (!index) {
-      fetch("/search-index.json")
+      fetch(`/${lang}/search-index.json`)
         .then((r) => r.json())
         .then(setIndex)
         .catch(() => setIndex([]));
     }
-  }, [open, index]);
+  }, [open, index, lang]);
+
+  // Another language has another index.
+  useEffect(() => setIndex(undefined), [lang]);
 
   const hits = index ? search(index, query) : [];
   const go = (hit: Hit) => {
     close();
-    router.push(hit.id ? `${hit.route}#${hit.id}` : hit.route);
+    router.push(withLang(lang, hit.id ? `${hit.route}#${hit.id}` : hit.route));
   };
 
   return (
     <>
-      <button type="button" className="search-button" onClick={() => setOpen(true)} aria-label="Search documentation">
-        <span>Search documentation…</span>
+      <button type="button" className="search-button" onClick={() => setOpen(true)} aria-label={t.searchPlaceholder}>
+        <span>{t.searchPlaceholder}</span>
         <svg className="search-icon" width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true">
           <circle cx="9" cy="9" r="5.5" />
           <path d="M13.5 13.5L17 17" />
@@ -102,11 +108,11 @@ export function Search() {
       {open && (
         <div className="search-overlay" onMouseDown={close} role="presentation">
           {/* biome-ignore lint/a11y/useKeyWithClickEvents: the dialog is closed with Escape; the click only stops the overlay handler */}
-          <div className="search-dialog" role="dialog" aria-modal="true" aria-label="Search" onMouseDown={(e) => e.stopPropagation()}>
+          <div className="search-dialog" role="dialog" aria-modal="true" aria-label={t.searchLabel} onMouseDown={(e) => e.stopPropagation()}>
             <input
               ref={input}
               value={query}
-              placeholder="Search documentation…"
+              placeholder={t.searchPlaceholder}
               onChange={(e) => {
                 setQuery(e.target.value);
                 setSelected(0);
@@ -132,7 +138,7 @@ export function Search() {
                   </button>
                 </li>
               ))}
-              {query && index && hits.length === 0 && <li className="empty">No results for “{query}”.</li>}
+              {query && index && hits.length === 0 && <li className="empty">{t.noResults(query)}</li>}
             </ul>
           </div>
         </div>

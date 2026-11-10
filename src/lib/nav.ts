@@ -1,12 +1,14 @@
+import type { Lang } from "./i18n";
+
 export type NavItem = {
   title: string;
-  /** Route; a group's own page when it has one. */
+  /** Route without the language; a group's own page when it has one. */
   href?: string;
   children?: NavItem[];
 };
 
 /** The sidebar, in the order of the OpenNext documentation (https://opennext.js.org/aws). */
-export const nav: NavItem[] = [
+const navEn: NavItem[] = [
   { title: "Overview", href: "/" },
   { title: "Get started", href: "/get_started" },
   { title: "Compatibility", href: "/compatibility" },
@@ -38,8 +40,38 @@ export const nav: NavItem[] = [
   },
 ];
 
+/** The sidebar titles in Japanese, by the English title. */
+const titlesJa: Record<string, string> = {
+  Overview: "概要",
+  "Get started": "はじめに",
+  Compatibility: "互換性",
+  Configuration: "設定",
+  Comparison: "比較",
+  "How does it work?": "仕組み",
+  "Azure notes": "Azure のメモ",
+  "Decision records": "設計判断の記録",
+  FAQ: "FAQ",
+  Troubleshooting: "トラブルシューティング",
+  Contributing: "コントリビューション",
+  "Run locally": "ローカルで動かす",
+  Testing: "テスト",
+  CI: "CI",
+  "Real Azure runs": "Azure での実行",
+  "Azure E2E": "Azure E2E",
+  "Supply chain": "サプライチェーン",
+};
+
+const translate = (items: NavItem[], titles: Record<string, string>): NavItem[] =>
+  items.map((item) => ({
+    ...item,
+    title: titles[item.title] ?? item.title,
+    children: item.children ? translate(item.children, titles) : undefined,
+  }));
+
+export const navFor = (lang: Lang): NavItem[] => (lang === "ja" ? translate(navEn, titlesJa) : navEn);
+
 /** The pages in reading order (groups flattened; a group's overview once). */
-export function flatNav(items: NavItem[] = nav): { title: string; href: string }[] {
+export function flatNav(items: NavItem[]): { title: string; href: string }[] {
   const out: { title: string; href: string }[] = [];
   const seen = new Set<string>();
   const walk = (list: NavItem[]) => {
@@ -56,7 +88,7 @@ export function flatNav(items: NavItem[] = nav): { title: string; href: string }
 }
 
 /** The trail of titles from the top to a route, for the breadcrumb. */
-export function trail(href: string, items: NavItem[] = nav): string[] {
+export function trail(href: string, items: NavItem[]): string[] {
   for (const item of items) {
     if (item.children) {
       const inner = trail(href, item.children);

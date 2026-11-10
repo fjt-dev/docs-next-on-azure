@@ -16,7 +16,7 @@ function findRepo(argument) {
 }
 const repo = findRepo(process.argv[2]);
 const docs = path.join(repo, "docs");
-const out = path.join(here, "../content");
+const out = path.join(here, "../content/en");
 
 // source (relative to docs/) -> target (relative to content/) and title
 const pages = [

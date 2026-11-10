@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from "react";
 import type { Heading } from "@/lib/content";
+import { useLang } from "@/lib/use-lang";
 
 export function Toc({ headings, editUrl }: { headings: Heading[]; editUrl?: string }) {
+  const { t } = useLang();
   const [active, setActive] = useState<string | undefined>(headings[0]?.id);
 
   useEffect(() => {
@@ -22,10 +24,10 @@ export function Toc({ headings, editUrl }: { headings: Heading[]; editUrl?: stri
 
   if (headings.length === 0 && !editUrl) return <aside className="toc" />;
   return (
-    <aside className="toc" aria-label="On this page">
+    <aside className="toc" aria-label={t.onThisPage}>
       {headings.length > 0 && (
         <>
-          <p className="toc-title">On This Page</p>
+          <p className="toc-title">{t.onThisPage}</p>
           <ul>
             {headings.map((h) => (
               <li key={h.id} className={h.depth === 3 ? "sub" : undefined}>
@@ -39,7 +41,7 @@ export function Toc({ headings, editUrl }: { headings: Heading[]; editUrl?: stri
       )}
       {editUrl && (
         <div className="toc-links">
-          <a href={editUrl}>Edit this page</a>
+          <a href={editUrl}>{t.editPage}</a>
         </div>
       )}
     </aside>

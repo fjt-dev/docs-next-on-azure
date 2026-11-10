@@ -1,12 +1,13 @@
 import Link from "next/link";
-import { trail } from "@/lib/nav";
+import { ui, withLang, type Lang } from "@/lib/i18n";
+import { navFor, trail } from "@/lib/nav";
 
-export function Breadcrumb({ route, title }: { route: string; title: string }) {
-  const parts = trail(route);
+export function Breadcrumb({ lang, route, title }: { lang: Lang; route: string; title: string }) {
+  const parts = trail(route, navFor(lang));
   const items = parts.length > 1 ? parts : parts.length === 1 && route !== "/" ? parts : [];
   return (
-    <nav className="breadcrumb" aria-label="Breadcrumb">
-      <Link href="/">next-on-azure</Link>
+    <nav className="breadcrumb" aria-label={ui[lang].breadcrumb}>
+      <Link href={withLang(lang, "/")}>next-on-azure</Link>
       {items.map((part, i) => (
         <span key={`${part}-${i}`}>
           <span className="sep" aria-hidden="true">

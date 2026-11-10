@@ -198,3 +198,18 @@ kbd { font-family: var(--mono); font-size: 11px; padding: 1px 5px; border: 1px s
   .main { padding: 20px 20px 64px; }
   .page-title { font-size: 30px; line-height: 36px; }
 }
+
+/* ---------------------------------------------------------------- language */
+.lang-switch { display: inline-flex; align-items: center; gap: 4px; margin-left: 8px; font-size: 14px; color: var(--muted); }
+.lang-switch svg { margin-right: 2px; }
+.lang-switch a { padding: 4px 8px; border-radius: 6px; }
+.lang-switch a:hover { color: var(--fg); background: var(--hover); }
+.lang-switch a.current { color: var(--fg); font-weight: 600; }
+@media (max-width: 767px) { .lang-switch svg { display: none; } .lang-switch { margin-left: 0; } }
+
+/* Above every Japanese page: the text may be machine or AI translated. */
+.translation-notice { display: flex; align-items: center; gap: 12px; margin: 0 0 20px; padding: 14px 18px; border-radius: 8px; background: #e9d8fb; color: #3d2466; font-size: 15px; line-height: 22px; }
+.translation-notice svg { flex: none; }
+.translation-notice p { margin: 0; }
+.translation-notice p + p { margin-top: 4px; }
+:root[data-theme="dark"] .translation-notice { background: #2d2140; color: #e2d0f7; }

@@ -1,11 +1,14 @@
 "use client";
 
+import { useLang } from "@/lib/use-lang";
+
 export function MenuButton() {
+  const { t } = useLang();
   return (
     <button
       type="button"
       className="icon-button menu-button"
-      aria-label="Toggle navigation"
+      aria-label={t.toggleNav}
       onClick={() => {
         const body = document.body;
         body.dataset.menu = body.dataset.menu === "open" ? "closed" : "open";

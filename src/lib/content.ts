@@ -13,11 +13,16 @@ import remarkParse from "remark-parse";
 import remarkRehype from "remark-rehype";
 import { unified } from "unified";
 import { visit } from "unist-util-visit";
+import { defaultLang, type Lang, withLang } from "./i18n";
 
-const root = path.join(process.cwd(), "content");
+const contentRoot = path.join(process.cwd(), "content");
+const rootOf = (lang: Lang) => path.join(contentRoot, lang);
 
 export type Heading = { depth: 2 | 3; text: string; id: string };
 export type Page = {
+  lang: Lang;
+  /** The English page is shown because the page has no translation. */
+  fallback: boolean;
   route: string;
   title: string;
   description?: string;
@@ -28,9 +33,9 @@ export type Page = {
   text: string;
 };
 
-/** content/a/b.md -> /a/b, content/a/index.md -> /a, content/index.md -> / */
-function routeOf(file: string): string {
-  const rel = path.relative(root, file).replace(/\\/g, "/").replace(/\.md$/, "");
+/** content/en/a/b.md -> /a/b, content/en/a/index.md -> /a, content/en/index.md -> / */
+function routeOf(lang: Lang, file: string): string {
+  const rel = path.relative(rootOf(lang), file).replace(/\\/g, "/").replace(/\.md$/, "");
   const route = `/${rel.replace(/(^|\/)index$/, "")}`;
   return route === "/" ? "/" : route.replace(/\/$/, "");
 }
@@ -42,15 +47,16 @@ function walk(dir: string): string[] {
   });
 }
 
-const files = () => walk(root);
-export const routes = (): string[] => files().map(routeOf);
+const files = (lang: Lang) => (fs.existsSync(rootOf(lang)) ? walk(rootOf(lang)) : []);
+/** Every page exists in English; another language falls back to it page by page. */
+export const routes = (): string[] => files(defaultLang).map((f) => routeOf(defaultLang, f));
 
 /** Where a repository doc (docs/x.md) lives on the site, by the `source` of each page. */
 function sourceMap(): Map<string, string> {
   const map = new Map<string, string>();
-  for (const file of files()) {
+  for (const file of files(defaultLang)) {
     const { data } = matter(fs.readFileSync(file, "utf8"));
-    if (typeof data.source === "string") map.set(data.source.replace(/^docs\//, ""), routeOf(file));
+    if (typeof data.source === "string") map.set(data.source.replace(/^docs\//, ""), routeOf(defaultLang, file));
   }
   return map;
 }
@@ -59,17 +65,22 @@ function sourceMap(): Map<string, string> {
  * Links between pages: `./compatibility.md#x` (relative to the doc in the repository) becomes the
  * site route; a link to something that is not on the site (plan, sources) becomes plain text.
  */
-function rewriteLinks(source: string | undefined, known: Map<string, string>) {
+function rewriteLinks(lang: Lang, source: string | undefined, known: Map<string, string>) {
   return () => (tree: Root) => {
     visit(tree, "link", (node: Link, index, parent) => {
       const url = node.url;
+      // A link written as a route of the site (`/faq`) gets the language.
+      if (/^\/(?!\/)/.test(url)) {
+        node.url = withLang(lang, url);
+        return;
+      }
       if (/^(https?:|mailto:|#|\/)/.test(url)) return;
       const [target, hash] = url.split("#");
       const from = source ? path.posix.dirname(source.replace(/^docs\//, "")) : ".";
       const resolved = path.posix.normalize(path.posix.join(from, target ?? ""));
       const route = known.get(resolved);
       if (route) {
-        node.url = hash ? `${route}#${hash}` : route;
+        node.url = withLang(lang, hash ? `${route}#${hash}` : route);
       } else if (parent && index !== undefined) {
         parent.children.splice(index, 1, ...node.children);
         return index;
@@ -105,8 +116,9 @@ function plainText(tree: Root): string {
   return parts.join(" ").replace(/\s+/g, " ").trim();
 }
 
-export async function getPage(route: string): Promise<Page | undefined> {
-  const file = files().find((f) => routeOf(f) === route);
+export async function getPage(lang: Lang, route: string): Promise<Page | undefined> {
+  const own = files(lang).find((f) => routeOf(lang, f) === route);
+  const file = own ?? files(defaultLang).find((f) => routeOf(defaultLang, f) === route);
   if (!file) return undefined;
   const { data, content } = matter(fs.readFileSync(file, "utf8"));
   const source = typeof data.source === "string" ? data.source : undefined;
@@ -124,7 +136,7 @@ export async function getPage(route: string): Promise<Page | undefined> {
     await unified()
       .use(remarkParse)
       .use(remarkGfm)
-      .use(rewriteLinks(source, sourceMap()))
+      .use(rewriteLinks(lang, source, sourceMap()))
       .use(remarkRehype)
       .use(rehypeSlug)
       .use(rehypeShiki, {
@@ -147,6 +159,8 @@ export async function getPage(route: string): Promise<Page | undefined> {
   );
 
   return {
+    lang,
+    fallback: own === undefined,
     route,
     title: String(data.title ?? route),
     description: typeof data.description === "string" ? data.description : undefined,
@@ -159,8 +173,8 @@ export async function getPage(route: string): Promise<Page | undefined> {
 
 export type SearchEntry = { route: string; title: string; headings: Heading[]; text: string };
 
-export async function searchIndex(): Promise<SearchEntry[]> {
-  const pages = await Promise.all(routes().map((r) => getPage(r)));
+export async function searchIndex(lang: Lang): Promise<SearchEntry[]> {
+  const pages = await Promise.all(routes().map((r) => getPage(lang, r)));
   return pages
     .filter((p): p is Page => p !== undefined)
     .map((p) => ({ route: p.route, title: p.title, headings: p.headings, text: p.text.slice(0, 6000) }));
