@@ -3,7 +3,7 @@ title: "概要"
 description: "Next.js アプリを、Blob Storage と Table Storage を使う 1 つの Azure Function(Flex Consumption)で動かします。"
 ---
 
-> **実験的・リリース前・npm には未公開です。** `next-on-azure` は仮の名前です。
+> **実験的・リリース前・npm には未公開です。**
 
 ## next-on-azure
 

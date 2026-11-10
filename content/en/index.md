@@ -3,7 +3,7 @@ title: "Overview"
 description: "Run a Next.js app on one Azure Function (Flex Consumption) with Blob and Table Storage."
 ---
 
-> **Experimental, pre-release, not published to npm.** `next-on-azure` is a provisional name.
+> **Experimental, pre-release, not published to npm.**
 
 ## next-on-azure
 
