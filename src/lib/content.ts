@@ -14,6 +14,7 @@ import remarkRehype from "remark-rehype";
 import { unified } from "unified";
 import { visit } from "unist-util-visit";
 import { defaultLang, type Lang, withLang } from "./i18n";
+import { localizedTitle } from "./nav";
 
 const contentRoot = path.join(process.cwd(), "content");
 const rootOf = (lang: Lang) => path.join(contentRoot, lang);
@@ -177,5 +178,5 @@ export async function searchIndex(lang: Lang): Promise<SearchEntry[]> {
   const pages = await Promise.all(routes().map((r) => getPage(lang, r)));
   return pages
     .filter((p): p is Page => p !== undefined)
-    .map((p) => ({ route: p.route, title: p.title, headings: p.headings, text: p.text.slice(0, 6000) }));
+    .map((p) => ({ route: p.route, title: localizedTitle(lang, p.title), headings: p.headings, text: p.text.slice(0, 6000) }));
 }

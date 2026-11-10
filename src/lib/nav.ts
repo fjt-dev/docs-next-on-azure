@@ -61,6 +61,9 @@ const titlesJa: Record<string, string> = {
   "Supply chain": "サプライチェーン",
 };
 
+/** The title of a page in the language of the site: the interface is translated even where the text is not. */
+export const localizedTitle = (lang: Lang, title: string): string => (lang === "ja" ? (titlesJa[title] ?? title) : title);
+
 const translate = (items: NavItem[], titles: Record<string, string>): NavItem[] =>
   items.map((item) => ({
     ...item,
