@@ -7,7 +7,6 @@ import { ThemeSync } from "@/components/ThemeSync";
 import { isLang, langs, ui } from "@/lib/i18n";
 import "../globals.css";
 
-export const dynamicParams = false;
 
 export function generateStaticParams() {
   return langs.map((lang) => ({ lang }));

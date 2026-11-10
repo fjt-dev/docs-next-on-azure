@@ -2,7 +2,6 @@ import { searchIndex } from "@/lib/content";
 import { isLang, langs } from "@/lib/i18n";
 
 export const dynamic = "force-static";
-export const dynamicParams = false;
 
 export function generateStaticParams() {
   return langs.map((lang) => ({ lang }));

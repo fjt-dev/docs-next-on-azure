@@ -13,7 +13,6 @@ type Params = { lang: string; slug?: string[] };
 
 const routeOf = (slug?: string[]) => (slug && slug.length > 0 ? `/${slug.join("/")}` : "/");
 
-export const dynamicParams = false;
 
 export function generateStaticParams(): Params[] {
   return langs.flatMap((lang) => routes().map((route) => ({ lang, slug: route === "/" ? [] : route.slice(1).split("/") })));
