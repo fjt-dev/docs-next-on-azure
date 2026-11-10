@@ -24,6 +24,7 @@ const pages = [
   ["compatibility.md", "compatibility.md", "Compatibility"],
   ["configuration.md", "configuration.md", "Configuration"],
   ["comparison.md", "comparison.md", "Comparison"],
+  ["cost.md", "cost.md", "Cost"],
   ["how_it_works.md", "how_it_works/index.md", "How does it work?"],
   ["inner_workings/azure_notes.md", "how_it_works/azure_notes.md", "Azure notes"],
   ["plan/decisions.md", "how_it_works/decisions.md", "Decision records"],

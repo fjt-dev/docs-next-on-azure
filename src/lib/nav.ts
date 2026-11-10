@@ -14,6 +14,7 @@ const navEn: NavItem[] = [
   { title: "Compatibility", href: "/compatibility" },
   { title: "Configuration", href: "/configuration" },
   { title: "Comparison", href: "/comparison" },
+  { title: "Cost", href: "/cost" },
   {
     title: "How does it work?",
     href: "/how_it_works",
@@ -47,6 +48,7 @@ const titlesJa: Record<string, string> = {
   Compatibility: "互換性",
   Configuration: "設定",
   Comparison: "比較",
+  Cost: "費用",
   "How does it work?": "仕組み",
   "Azure notes": "Azure のメモ",
   "Decision records": "設計判断の記録",

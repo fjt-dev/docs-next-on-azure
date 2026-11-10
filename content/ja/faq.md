@@ -21,7 +21,7 @@ source: "docs/faq.md"
 
 ## 費用はどのくらいですか。
 
-Flex Consumption は実行時間とメモリで、Storage は使用量で課金されます。Front Door Standard には、プロファイルごとに基本料金があります。常時稼働インスタンス(`--always-ready`)は、常に課金されます([ADR-0013](./plan/decisions.md#adr-0013-cold-start-always-ready-instances-first-no-timer-warmer-yet)を参照)。お使いのリージョンの最新の Azure の料金を確認してください。これまでの実際の実行は短く(小さなアプリで 17 分と 27 分)、Azure Cost Management の金額は、まだ確認していません。
+アクセス数によります。小さなサイトは、Azure Functions の無料枠に収まります。アクセスの多いサイトは、実行回数、インスタンスの稼働時間、Application Insights、外向きのデータ転送の分を払います。[費用](./cost.md)に、ドキュメントサイトで Azure 上で実測した結果、アクセス数ごとの試算(月 10 万訪問で約 0.2 ドル、100 万訪問で約 22〜62 ドル)、費用を下げる方法を書いています。常時稼働インスタンス(`--always-ready`)は、常に課金されます([ADR-0013](./plan/decisions.md#adr-0013-cold-start-always-ready-instances-first-no-timer-warmer-yet)を参照)。
 
 ## デプロイ直後の最初のリクエストが遅いのはなぜですか。
 

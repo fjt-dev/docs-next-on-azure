@@ -21,7 +21,7 @@ Yes: [Local development](./contribute/local_run.md).
 
 ## What does it cost?
 
-Flex Consumption bills per execution and memory, Storage per use, and Front Door Standard has a base fee per profile. Always-ready instances (`--always-ready`) are billed continuously; see [ADR-0013](./plan/decisions.md#adr-0013-cold-start-always-ready-instances-first-no-timer-warmer-yet). Check current Azure pricing for your region. The real runs so far were short (17 and 27 minutes of one small app); the cost figure from Azure Cost Management has not been read yet.
+It depends on the traffic. A small site stays inside the free grants of Azure Functions; a busy one pays for executions, instance time, Application Insights and outbound data. [Cost](./cost.md) has what was measured on Azure with the documentation site, an estimate by traffic (about 0.2 USD a month at 100,000 visits, about 22 to 62 USD at a million) and what lowers the bill. Always-ready instances (`--always-ready`) are billed continuously ([ADR-0013](./plan/decisions.md#adr-0013-cold-start-always-ready-instances-first-no-timer-warmer-yet)).
 
 ## Why are the first requests after a deployment slow?
 
