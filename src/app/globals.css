@@ -233,13 +233,6 @@ kbd { font-family: var(--mono); font-size: 11px; padding: 1px 5px; border: 1px s
 .translation-notice svg { flex: none; }
 .translation-notice p { margin: 0; }
 .translation-notice p + p { margin-top: 4px; }
-/* A page that has no translation: a box of its own, in the same purple. */
-.translation-missing { --notice-color: #6d28d9; --notice-icon-fg: #ffffff; display: flex; align-items: flex-start; gap: 14px; margin: 0 0 20px; padding: 16px 20px; border: 2px solid #7c3aed; border-radius: 14px; background: #f5f0ff; color: #1e1033; }
-.translation-missing > svg { flex: none; margin-top: 2px; color: #7c3aed; }
-.translation-missing p { margin: 0; }
-.translation-missing-text { font-size: 16px; font-weight: 700; line-height: 26px; }
-.translation-missing a { display: inline-block; margin-top: 2px; font-size: 16px; font-weight: 600; line-height: 26px; color: var(--notice-color); }
-.translation-missing a:hover { text-decoration: underline; text-underline-offset: 3px; }
-:root[data-theme="dark"] .translation-missing { --notice-color: #c4b5fd; --notice-icon-fg: #211833; border-color: #a78bfa; background: #211833; color: #f3e8ff; }
-:root[data-theme="dark"] .translation-missing > svg { color: #a78bfa; }
+.translation-notice a { font-weight: 600; color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+.translation-notice a:hover { text-decoration-thickness: 2px; }
 :root[data-theme="dark"] .translation-notice { background: #2d2140; color: #e2d0f7; }
