@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Breadcrumb } from "@/components/Breadcrumb";
+import { CodeCopy } from "@/components/CodeCopy";
 import { PrevNext } from "@/components/PrevNext";
 import { Toc } from "@/components/Toc";
 import { TranslationNotice } from "@/components/TranslationNotice";
@@ -39,6 +40,7 @@ export default async function DocPage({ params }: { params: Promise<Params> }) {
         <h1 className="page-title">{page.title}</h1>
         {/* biome-ignore lint/security/noDangerouslySetInnerHtml: the HTML is made from this site's own markdown at build time */}
         <article className="prose" dangerouslySetInnerHTML={{ __html: page.html }} />
+        <CodeCopy />
         <PrevNext lang={lang} route={page.route} />
       </main>
       <Toc headings={page.headings} editUrl={editBase && page.source ? `${editBase}/${page.source}` : undefined} />

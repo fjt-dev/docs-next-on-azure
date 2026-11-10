@@ -51,6 +51,11 @@ export type Strings = {
   notFoundTitle: string;
   notFoundBody: string;
   overview: string;
+  copy: string;
+  copied: string;
+  feedback: string;
+  scrollTop: string;
+  github: string;
   /** Shown above every page of the Japanese site. */
   translationNotice?: string;
   /** Shown above a page that has no translation yet. */
@@ -82,6 +87,11 @@ export const ui: Record<Lang, Strings> = {
     notFoundTitle: "Page not found",
     notFoundBody: "There is no such page. Go to the overview.",
     overview: "Overview",
+    copy: "Copy code",
+    copied: "Copied",
+    feedback: "Question? Give us feedback →",
+    scrollTop: "Scroll to top",
+    github: "GitHub repository",
   },
   ja: {
     description: "Next.js アプリを、Blob Storage と Table Storage を使う 1 つの Azure Function(Flex Consumption)で動かします。",
@@ -107,6 +117,11 @@ export const ui: Record<Lang, Strings> = {
     notFoundTitle: "ページが見つかりません",
     notFoundBody: "このページはありません。概要に戻ってください。",
     overview: "概要",
+    copy: "コードをコピー",
+    copied: "コピーしました",
+    feedback: "質問・ご意見はこちら →",
+    scrollTop: "ページの先頭へ",
+    github: "GitHub リポジトリ",
     translationNotice: "このトピックの一部は機械翻訳または AI 翻訳されている場合があります。",
     untranslated: "このページはまだ日本語に翻訳されていません。英語版を表示しています。",
   },

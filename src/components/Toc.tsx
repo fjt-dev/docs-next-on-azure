@@ -5,6 +5,7 @@ import type { Heading } from "@/lib/content";
 import { useLang } from "@/lib/use-lang";
 
 export function Toc({ headings, editUrl }: { headings: Heading[]; editUrl?: string }) {
+  const feedbackUrl = process.env.NEXT_PUBLIC_FEEDBACK_URL;
   const { t } = useLang();
   const [active, setActive] = useState<string | undefined>(headings[0]?.id);
 
@@ -22,7 +23,6 @@ export function Toc({ headings, editUrl }: { headings: Heading[]; editUrl?: stri
     return () => observer.disconnect();
   }, [headings]);
 
-  if (headings.length === 0 && !editUrl) return <aside className="toc" />;
   return (
     <aside className="toc" aria-label={t.onThisPage}>
       {headings.length > 0 && (
@@ -39,11 +39,13 @@ export function Toc({ headings, editUrl }: { headings: Heading[]; editUrl?: stri
           </ul>
         </>
       )}
-      {editUrl && (
-        <div className="toc-links">
-          <a href={editUrl}>{t.editPage}</a>
-        </div>
-      )}
+      <div className="toc-links">
+        {feedbackUrl && <a href={feedbackUrl}>{t.feedback}</a>}
+        {editUrl && <a href={editUrl}>{t.editPage}</a>}
+        <button type="button" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
+          {t.scrollTop}
+        </button>
+      </div>
     </aside>
   );
 }

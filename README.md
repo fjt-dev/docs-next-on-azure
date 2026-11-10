@@ -20,7 +20,7 @@ pnpm typecheck
 pnpm sync:content           # NEXT_ON_AZURE_REPO or the sibling directory
 ```
 
-The sidebar is `src/lib/nav.ts`. Links between pages are rewritten from the repository's relative Markdown links; a link to something that is not on the site becomes plain text. Set `NEXT_PUBLIC_EDIT_BASE` at build time (for example `https://github.com/<owner>/<repo>/blob/main`) to get an "Edit this page" link.
+The sidebar is `src/lib/nav.ts`. Links between pages are rewritten from the repository's relative Markdown links; a link to something that is not on the site becomes plain text. Set `NEXT_PUBLIC_EDIT_BASE` at build time (for example `https://github.com/<owner>/<repo>/blob/main`) to get an "Edit this page" link. `NEXT_PUBLIC_FEEDBACK_URL` adds the "Question? Give us feedback" link under "On This Page", and `NEXT_PUBLIC_REPO_URL` the GitHub icon in the header; all three are left out while the repository is private.
 
 ## Languages
 
