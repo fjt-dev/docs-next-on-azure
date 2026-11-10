@@ -27,7 +27,7 @@ The sidebar is `src/lib/nav.ts`. Links between pages are rewritten from the repo
 The site is in English (`/en/...`) and Japanese (`/ja/...`). A path without a language (`/`, `/faq`) opens the English page, unless the visitor chose another language in the language menu (the `lang` cookie it sets; `src/middleware.ts`). The browser's language is not used.
 
 - `content/ja/` holds the Japanese pages, with the same file names and the same `source` front matter as the English ones. A page that is not there is shown in English, with a notice.
-- Every Japanese page has the notice that the text may be machine or AI translated (`TranslationNotice`).
+- A translated Japanese page has the notice that the text may be machine or AI translated; a page without a translation says so instead and offers two buttons, "request" and "contribute", that open a new GitHub issue with the page filled in (`TranslationNotice`, `src/lib/site.ts`; the repository is `NEXT_PUBLIC_ISSUES_URL`, default `fjt-dev/docs-next-on-azure`).
 - The texts of the interface and the sidebar titles are in `src/lib/i18n.ts` and `src/lib/nav.ts`. To add a language, add it to `langs`, `ui` and the nav titles, and a `content/<lang>/` directory.
 - Translated so far: overview, get started, configuration, FAQ. The English page changes first; the translation follows by hand (`sync:content` only writes `content/en/`).
 

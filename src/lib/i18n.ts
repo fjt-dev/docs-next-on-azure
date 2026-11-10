@@ -58,8 +58,10 @@ export type Strings = {
   github: string;
   /** Shown above every page of the Japanese site. */
   translationNotice?: string;
-  /** Shown above a page that has no translation yet. */
+  /** Shown above a page that has no translation yet (instead of the notice above). */
   untranslated?: string;
+  /** The buttons under it: `request` (or `contribute`), in the order of the sentence `request（または contribute）`. */
+  translationActions?: { request: string; contribute: string; open: string; close: string };
 };
 
 export const ui: Record<Lang, Strings> = {
@@ -124,5 +126,6 @@ export const ui: Record<Lang, Strings> = {
     github: "GitHub リポジトリ",
     translationNotice: "このトピックの一部は機械翻訳または AI 翻訳されている場合があります。",
     untranslated: "このページはまだ日本語に翻訳されていません。英語版を表示しています。",
+    translationActions: { request: "翻訳をリクエスト", contribute: "貢献する", open: "（または", close: "）" },
   },
 };

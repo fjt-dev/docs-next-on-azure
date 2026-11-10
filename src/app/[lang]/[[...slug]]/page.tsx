@@ -35,7 +35,7 @@ export default async function DocPage({ params }: { params: Promise<Params> }) {
   return (
     <div className="page">
       <main className="main">
-        <TranslationNotice lang={lang} fallback={page.fallback} />
+        <TranslationNotice lang={lang} route={page.route} source={page.source} fallback={page.fallback} />
         <Breadcrumb lang={lang} route={page.route} title={page.title} />
         <h1 className="page-title">{page.title}</h1>
         {/* biome-ignore lint/security/noDangerouslySetInnerHtml: the HTML is made from this site's own markdown at build time */}
