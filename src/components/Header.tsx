@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { type Lang, ui, withLang } from "@/lib/i18n";
-import { LanguageSwitch } from "./LanguageSwitch";
+import { LanguageMenu } from "./LanguageMenu";
 import { MenuButton } from "./MenuButton";
 import { Search } from "./Search";
+import { ThemeMenu } from "./ThemeMenu";
 
 export function Header({ lang }: { lang: Lang }) {
   const repo = process.env.NEXT_PUBLIC_REPO_URL; // the repository, once it is public
@@ -17,7 +18,8 @@ export function Header({ lang }: { lang: Lang }) {
         </Link>
         <div className="header-end">
           <Search />
-          <LanguageSwitch />
+          <ThemeMenu />
+          <LanguageMenu />
           {repo && (
             <a href={repo} className="icon-link" aria-label={ui[lang].github}>
               <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">

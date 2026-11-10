@@ -5,7 +5,6 @@ import { useLang } from "@/lib/use-lang";
 import { type Lang, withLang } from "@/lib/i18n";
 import { useEffect, useState } from "react";
 import { type NavItem, navFor } from "@/lib/nav";
-import { ThemeToggle } from "./ThemeToggle";
 
 const contains = (item: NavItem, path: string): boolean =>
   item.href === path || (item.children?.some((c) => contains(c, path)) ?? false);
@@ -70,9 +69,6 @@ export function Sidebar() {
         <nav className="sidebar-scroll">
           <List items={navFor(lang)} path={path} depth={0} lang={lang} toggleLabel={t.toggleGroup} />
         </nav>
-        <div className="sidebar-foot">
-          <ThemeToggle />
-        </div>
       </aside>
       <button type="button" className="scrim" aria-label={t.closeNav} onClick={() => (document.body.dataset.menu = "closed")} />
     </>

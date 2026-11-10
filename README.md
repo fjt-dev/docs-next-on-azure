@@ -24,7 +24,7 @@ The sidebar is `src/lib/nav.ts`. Links between pages are rewritten from the repo
 
 ## Languages
 
-The site is in English (`/en/...`) and Japanese (`/ja/...`). A path without a language (`/`, `/faq`) goes to the page in the visitor's language: the `lang` cookie that the language switch sets, else `Accept-Language`, else English (`src/middleware.ts`).
+The site is in English (`/en/...`) and Japanese (`/ja/...`). A path without a language (`/`, `/faq`) opens the English page, unless the visitor chose another language in the language menu (the `lang` cookie it sets; `src/middleware.ts`). The browser's language is not used.
 
 - `content/ja/` holds the Japanese pages, with the same file names and the same `source` front matter as the English ones. A page that is not there is shown in English, with a notice.
 - Every Japanese page has the notice that the text may be machine or AI translated (`TranslationNotice`).

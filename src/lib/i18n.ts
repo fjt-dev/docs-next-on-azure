@@ -46,7 +46,7 @@ export type Strings = {
   themeSystem: string;
   themeLight: string;
   themeDark: string;
-  themeLabel: (name: string) => string;
+  themeMenu: string;
   language: string;
   notFoundTitle: string;
   notFoundBody: string;
@@ -79,10 +79,10 @@ export const ui: Record<Lang, Strings> = {
     docs: "Documentation",
     home: "next-on-azure, home",
     toggleGroup: (t) => `Toggle ${t}`,
-    themeSystem: "System",
-    themeLight: "Light",
-    themeDark: "Dark",
-    themeLabel: (n) => `Theme: ${n}. Click to change.`,
+    themeSystem: "Device default",
+    themeLight: "Light mode",
+    themeDark: "Dark mode",
+    themeMenu: "Theme",
     language: "Language",
     notFoundTitle: "Page not found",
     notFoundBody: "There is no such page. Go to the overview.",
@@ -109,10 +109,10 @@ export const ui: Record<Lang, Strings> = {
     docs: "ドキュメント",
     home: "next-on-azure、トップ",
     toggleGroup: (t) => `${t}を開閉`,
-    themeSystem: "システム",
-    themeLight: "ライト",
-    themeDark: "ダーク",
-    themeLabel: (n) => `テーマ: ${n}。クリックで切り替えます。`,
+    themeSystem: "デバイスのデフォルト",
+    themeLight: "ライトモード",
+    themeDark: "ダークモード",
+    themeMenu: "テーマ",
     language: "言語",
     notFoundTitle: "ページが見つかりません",
     notFoundBody: "このページはありません。概要に戻ってください。",
