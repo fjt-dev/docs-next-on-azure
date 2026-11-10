@@ -9,7 +9,7 @@ function preferred(request: NextRequest): string {
 }
 
 /** A path without a language (`/`, `/faq`) goes to the page in the visitor's language. */
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   if (langs.includes(pathname.split("/")[1] ?? "")) return NextResponse.next();
   const url = request.nextUrl.clone();
