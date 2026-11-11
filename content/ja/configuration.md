@@ -48,5 +48,5 @@ Bicep テンプレートが、Function App に次の変数を設定します。
 | コマンド | 効果 |
 | --- | --- |
 | `next-on-azure package [--target azure\|local] [--allow-unsupported-next]` | `.next/standalone` を `.next-azure/app.zip` にします。対応範囲外の Next.js のバージョンは拒否し、Server Actions のキーがない場合や違う場合は警告します。 |
-| `next-on-azure deploy -g <rg> -n <name> [-l <location>] [options]` | Bicep でプロビジョニングし、zip をデプロイして、アプリを待ち、キャッシュをプライミングします。フラグは[はじめに](./get_started.md#3-deploy)を参照してください。 |
+| `next-on-azure deploy -g <rg> -n <name> [-l <location>] [options]` | Bicep でプロビジョニングし、zip をデプロイして、アプリを待ち、キャッシュをプライミングします。フラグは[はじめに](./get_started.md#3-デプロイ)を参照してください。 |
 | `next-on-azure prime <url>` | プリレンダリングされた全ルートを 1 回ずつ要求します。 |

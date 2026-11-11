@@ -66,7 +66,7 @@ function sourceMap(): Map<string, string> {
  * Links between pages: `./compatibility.md#x` (relative to the doc in the repository) becomes the
  * site route; a link to something that is not on the site (plan, sources) becomes plain text.
  */
-function rewriteLinks(lang: Lang, source: string | undefined, known: Map<string, string>) {
+function rewriteLinks(lang: Lang, source: string | undefined, known: Map<string, string>, untranslated: boolean) {
   return () => (tree: Root) => {
     visit(tree, "link", (node: Link, index, parent) => {
       const url = node.url;
@@ -81,7 +81,10 @@ function rewriteLinks(lang: Lang, source: string | undefined, known: Map<string,
       const resolved = path.posix.normalize(path.posix.join(from, target ?? ""));
       const route = known.get(resolved);
       if (route) {
-        node.url = withLang(lang, hash ? `${route}#${hash}` : route);
+        // An English page shown in another language links to a page that was translated: its headings have
+        // other ids than the English ones, so the link goes to the top of that page.
+        const keepHash = hash && !(untranslated && files(lang).some((f) => routeOf(lang, f) === route));
+        node.url = withLang(lang, keepHash ? `${route}#${hash}` : route);
       } else if (parent && index !== undefined) {
         parent.children.splice(index, 1, ...node.children);
         return index;
@@ -137,7 +140,7 @@ export async function getPage(lang: Lang, route: string): Promise<Page | undefin
     await unified()
       .use(remarkParse)
       .use(remarkGfm)
-      .use(rewriteLinks(lang, source, sourceMap()))
+      .use(rewriteLinks(lang, source, sourceMap(), own === undefined && lang !== defaultLang))
       .use(remarkRehype)
       .use(rehypeSlug)
       .use(rehypeShiki, {

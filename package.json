@@ -12,7 +12,8 @@
     "package": "next build && next-on-azure package --target azure",
     "package:local": "next build && next-on-azure package --target local",
     "sync:content": "node scripts/sync-content.mjs",
-    "vendor": "node scripts/vendor-package.mjs"
+    "vendor": "node scripts/vendor-package.mjs",
+    "check:links": "node scripts/check-site-links.mjs"
   },
   "dependencies": {
     "@shikijs/rehype": "^3.0.0",

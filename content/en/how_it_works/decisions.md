@@ -437,3 +437,33 @@ Cost: the app existed for about 17 minutes (15:18 to 15:35 JST). No figure from 
 **Decision.** For the alpha the design stays. Cost is lowered with options that do not change the design and are off by default: `deploy --memory`, `--max-instances`, `--cache-retention-days`, `--request-telemetry errors`. The estimate by traffic is on the [Cost](../cost.md) page, labelled as an estimate (real Japan East prices, assumed quantities). Serving `/_next/static/*` from Blob (a public read container and `assetPrefix`) or from Front Door Standard (Blob origin with the managed identity of Front Door; the Azure docs list this for Standard, partly marked preview) is **not** built. Decide it when the measurement of the documentation site's deployment and a target traffic exist; by the estimate, around a few hundred thousand to one million page views a month.
 
 **Consequences.** Small sites pay close to nothing inside the free grants. **Measured on 2026-11-10** (documentation site on Azure, see the [Cost](../cost.md) page): about 4.1 KB of Application Insights data per request, 0.106 GB-seconds per request at 2048 MB, 186 KB and 4.2 requests per visit. For a busy site the Application Insights ingestion is the largest part of the bill (about 40 of 62 USD at a million visits); `--request-telemetry errors` cuts it by 85% (Host.Results to Error and Function.server to Warning; the app setting names with a period work on Flex Consumption). `--memory 512` saves nothing for this workload: a request takes about four times as long, so the GB-seconds are the same. The measurements still to be made: Cost Management figures, a longer run, `sharp` at 512 MB.
+
+## ADR-0021: The first release is `0.1.0`, without a pre-release suffix
+
+**Date:** 2026-11-10. **Status:** accepted by the maintainer ("the tag carries no letters").
+
+**Decision.** The first public release is `0.1.0`, published with npm's default tag. No `-alpha`, `-beta` or `-rc` suffix and no `alpha` dist-tag. That the project is experimental is stated in the README, in the package description and on the [Support](../support.md) page, which promises only what was run. The `0.x` series itself tells users that a minor version may break. The stage that the first plan called beta becomes `0.2.0` and later minors.
+
+**Consequence.** `npm install next-on-azure` installs the experimental release without asking for a tag: the documents must carry the warning, since the version does not. A pre-release channel (for testing a release before it is the default) is not planned; a release is tested on the release commit (R6) before it is published.
+
+## ADR-0022: The cache handler reads the build output on a miss
+
+**Date:** 2026-11-11. **Status:** implemented and tested locally; **not yet run on Azure**.
+
+**Context.** Next.js reads what `next build` prerendered (`.next/server/app`, `.next/server/pages`) through its own `FileSystemCache`. With a custom `cacheHandler` it asks the handler, which had none of these entries, so every page was rendered on its first request (and `deploy` primed them). For a route without a fallback (`dynamicParams = false` in the App Router) Next.js does not render a page that is not in the cache: it throws `NoFallbackError` and answers 404, for the built paths too. The documentation site hit this on its first deployment (every page 404, on Azure and locally).
+
+**Decision.** On a miss in Blob the handler reads the page with Next.js's own `FileSystemCache`, created from the Next.js of the app (`createRequire` from `serverDistDir`, so the class belongs to the version that runs), with a memory cache of zero and `flushToDisk: false`: only reads. Only the kinds that the build prerenders (`APP_PAGE`, `APP_ROUTE`, `PAGES`); `fetch` entries are not. The tag check is the one for Blob entries, using the tags in the `x-next-cache-tags` header, against Table Storage: an entry whose tag was revalidated after the build file was written (its modification time) is a miss. Nothing is written to Blob by a read. If the class cannot be loaded, the read is a miss, as before.
+
+**Not chosen.** Seeding Blob at deploy (OpenNext's populate-cache): the deployer would need a data role on the storage account, and the value shape differs by Next.js version, which the class above already knows. Reproducing the file formats in the handler: brittle across versions 15 and 16.
+
+**Consequences.** The handler depends on an internal path of Next.js (`next/dist/server/lib/incremental-cache/file-system-cache`); the E2E suite runs on 15 and 16 in CI, and a missing class degrades to the old behavior. `dynamicParams = false` works (local E2E: the built path, 404 for an unknown path, stale then regenerated; the documentation site on 16.4.5 on the Functions host). The first requests no longer render the built pages again. Priming stays: it warms the instance and starts the regeneration of stale pages. To verify on Azure: the same E2E cases against a deployment, with Next.js 15 and 16.
+
+## ADR-0023: Releases are tags, published with trusted publishing, without Changesets
+
+**Date:** 2026-11-11. **Status:** written, **not run**; the npm side is not configured.
+
+**Decision.** A release is a version tag. The `release` workflow verifies (lint, type check, build, unit and integration tests, the tag equals the package version, the package is not private), packs the package once, and a second job downloads that tarball and publishes it with `npm publish --provenance` after the approval of the protected environment `npm-publish`, using npm trusted publishing (OIDC). No npm token exists. The version and `CHANGELOG.md` are edited by hand in the release commit. Only first-party `actions/*` actions are used.
+
+**Not chosen.** Changesets: it asks for its own action (`changesets/action`), which the CI rules do not allow (third-party actions), and for a bot-made "version" pull request; for one package and one maintainer a hand-written changelog and a tag are less machinery and less supply chain. A token in a secret: a long-lived credential that trusted publishing avoids.
+
+**Consequences.** The first release depends on npm accepting a trusted publisher before a package exists, which is not verified ([Release](../contribute/release.md)). The end-to-end checks on a real deployment (R6) are done by hand before the tag, not by the workflow: the workflow has no Azure access by design.
