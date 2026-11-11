@@ -812,7 +812,7 @@ packages:
     hasBin: true
 
   next-on-azure@file:vendor/next-on-azure-0.0.1.tgz:
-    resolution: {integrity: sha512-BSr8SMiL4KM33dGKD+v+SxP7p1Bw9a31Isl2Vd7SPhz+TPS1tpxEbACTLy43Ihpxv3cd2i7jA8OyNh2weaihQA==, tarball: file:vendor/next-on-azure-0.0.1.tgz}
+    resolution: {integrity: sha512-AsFrJ4VdVXBU2WGB4vzvplYCWG95/DBInmqYfzVIYMDyJw0PoXQn/cybDhGplt5XNu0IpgyLIhfF7hKIkE+qjQ==, tarball: file:vendor/next-on-azure-0.0.1.tgz}
     version: 0.0.1
     engines: {node: '>=22'}
     hasBin: true
