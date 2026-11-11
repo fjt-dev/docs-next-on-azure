@@ -23,12 +23,12 @@ export default withAzure({ /* your Next.js configuration */ });
 
 ## 環境変数
 
-Bicep テンプレートが、Function App に次の変数を設定します。
+[Bicep](https://learn.microsoft.com/azure/azure-resource-manager/bicep/overview?wt.mc_id=studentamb_679600) テンプレートが、Function App に次の変数を設定します。
 
 | 変数 | 既定値 | 使うもの |
 | --- | --- | --- |
 | `AZURE_STORAGE_ACCOUNT_NAME` | なし(接続文字列を設定しない場合は必須) | キャッシュハンドラー |
-| `AZURE_STORAGE_CONNECTION_STRING` | なし | キャッシュハンドラー。Azurite を使うローカル開発専用 |
+| `AZURE_STORAGE_CONNECTION_STRING` | なし | キャッシュハンドラー。[Azurite](https://learn.microsoft.com/azure/storage/common/storage-use-azurite?wt.mc_id=studentamb_679600) を使うローカル開発専用 |
 | `CACHE_CONTAINER_NAME` | `cache` | インクリメンタルキャッシュと `'use cache'` のエントリ |
 | `CACHE_TABLE_NAME` | `tagcache` | タグの状態 |
 | `NEXT_BUILD_ID` | `.next/BUILD_ID` のビルド ID | すべてのキーの接頭辞。古いビルドのエントリは、新しいビルドから読まれません |

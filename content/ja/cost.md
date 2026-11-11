@@ -9,11 +9,11 @@ source: "docs/cost.md"
 
 | リソース | 課金の単位 |
 | --- | --- |
-| 関数アプリ(Flex Consumption) | 実行回数と、メモリ × 実行時間(GB 秒)。月ごとの無料枠を超えた分です。常時稼働インスタンスは、常に課金されます([ADR-0013](./plan/decisions.md#adr-0013-cold-start-always-ready-instances-first-no-timer-warmer-yet)) |
+| 関数アプリ([Flex Consumption](https://learn.microsoft.com/azure/azure-functions/flex-consumption-plan?wt.mc_id=studentamb_679600)) | 実行回数と、メモリ × 実行時間(GB 秒)。月ごとの無料枠を超えた分です。常時稼働インスタンスは、常に課金されます([ADR-0013](./plan/decisions.md#adr-0013-cold-start-always-ready-instances-first-no-timer-warmer-yet)) |
 | Application Insights と Log Analytics | 取り込んだデータ量(GB)。月ごとの無料枠を超えた分です |
 | ストレージアカウント | 取引の回数と容量 |
 | 外向きのデータ転送 | インターネットへ送った GB。最初の一定量は無料です |
-| Azure Front Door Standard(任意) | プロファイルごとの基本料金と、リクエストとデータ |
+| [Azure Front Door](https://learn.microsoft.com/azure/frontdoor/front-door-overview?wt.mc_id=studentamb_679600) Standard(任意) | プロファイルごとの基本料金と、リクエストとデータ |
 
 静的ファイルを含めて、すべてのリクエストが関数を実行します。`/_next/static/*` は、`Cache-Control: public, max-age=31536000, immutable` で返すので、ブラウザは各ファイルを 1 回だけ取得します。`public/` のファイルは、リクエストのたびに再検証されます([ADR-0020](./plan/decisions.md#adr-0020-static-files-stay-with-the-function-cost-options-first-measure-later))。
 
@@ -36,7 +36,7 @@ source: "docs/cost.md"
 
 ## 実際の請求額
 
-Azure Cost Management(実際の費用)を、2026-11-11 に API で読みました。実行したリソースグループの、2026-11-08 から 11-10 の費用は、**合計 0.28 円**です(11-08 が 0.0006 円、11-10 が 0.28 円。11-09 は表示がなく、直近の使用量は、まだ反映されていない可能性があります)。このグループの実行は、サンプルの短いデプロイ 3 回(各 17〜35 分)と、ドキュメントサイトの 2 つのアプリ(約 2 時間)で、どれも、数千リクエストでした。小さなサイトの見積もり(無料枠の中で、残りは小さな項目だけ)と合っています。実際のアクセス量での費用は、これからは分かりません。また、使用量の直後に読んだ金額は、あとで増えることがあります。
+Azure Cost Management(実際の費用)を、2026-11-11 に [Query API](https://learn.microsoft.com/rest/api/cost-management/query?wt.mc_id=studentamb_679600) で読みました。実行したリソースグループの、2026-11-08 から 11-10 の費用は、**合計 0.28 円**です(11-08 が 0.0006 円、11-10 が 0.28 円。11-09 は表示がなく、直近の使用量は、まだ反映されていない可能性があります)。このグループの実行は、サンプルの短いデプロイ 3 回(各 17〜35 分)と、ドキュメントサイトの 2 つのアプリ(約 2 時間)で、どれも、数千リクエストでした。小さなサイトの見積もり(無料枠の中で、残りは小さな項目だけ)と合っています。実際のアクセス量での費用は、これからは分かりません。また、使用量の直後に読んだ金額は、あとで増えることがあります。
 
 ## アクセス数ごとの試算
 
