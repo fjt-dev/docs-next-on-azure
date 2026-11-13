@@ -33,7 +33,7 @@ next build
 next-on-azure package
 ```
 
-これで `.next-azure/app.zip` が作られます。中身は、standalone ビルド、シンボリックリンクをなくして普通のツリーにした `node_modules`(Azure はシンボリックリンクを落とすため)、Linux x64 用の `sharp` のバイナリ、そして Functions のエントリです。Server Actions のキーは、ビルドのたびに同じものを使ってください。違うキーを使うと、デプロイ前に開かれていたページが、アクションを呼ぶときに失敗します([トラブルシューティング](./troubleshooting.md#a-server-action-fails-after-a-deployment-failed-to-find-server-action))。`package --target local` は、ローカル実行向けに、手元のマシンのバイナリを残します。
+これで `.next-azure/app.zip` が作られます。中身は、standalone ビルド、シンボリックリンクをなくして普通のツリーにした `node_modules`(Azure はシンボリックリンクを落とすため)、Linux x64 用の `sharp` のバイナリ、そして Functions のエントリです。Server Actions のキーは、ビルドのたびに同じものを使ってください。違うキーを使うと、デプロイ前に開かれていたページが、アクションを呼ぶときに失敗します([トラブルシューティング](./troubleshooting.md#デプロイのあとで-server-action-が失敗するfailed-to-find-server-action))。`package --target local` は、ローカル実行向けに、手元のマシンのバイナリを残します。
 
 ## 3. デプロイ
 
