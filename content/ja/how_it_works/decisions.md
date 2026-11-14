@@ -448,7 +448,7 @@ Azure でテストしていないもの: Front Door、常時稼働、Next.js 16�
 
 ## ADR-0022: The cache handler reads the build output on a miss
 
-**日付:** 2026-11-11。**状態:** 実装し、ローカルでテスト済み。**Azure では、まだ実行していません**。
+**日付:** 2026-11-11。**状態:** 実装し、ローカルでテスト済み。**2026-11-14 に Azure で検証済み**(Next.js 15.5.29 と 16.4.5 のサンプルアプリで、HTTP スイート 50 件中 50 件が合格。`dynamicParams = false` のケースを含みます)。
 
 **背景。** Next.js は、`next build` がプリレンダリングしたもの(`.next/server/app`、`.next/server/pages`)を、自身の `FileSystemCache` で読みます。カスタムの `cacheHandler` があると、ハンドラーに尋ねますが、ハンドラーには、これらのエントリがなく、すべてのページが、最初のリクエストでレンダリングされていました(そして `deploy` が prime していました)。フォールバックのないルート(App Router の `dynamicParams = false`)では、Next.js は、キャッシュにないページをレンダリングしません。`NoFallbackError` を投げて、ビルドされたパスでも、404 を返します。ドキュメントサイトが、最初のデプロイで、これに当たりました(Azure でもローカルでも、すべてのページが 404)。
 
@@ -456,7 +456,7 @@ Azure でテストしていないもの: Front Door、常時稼働、Next.js 16�
 
 **選ばなかったもの。** デプロイ時に Blob に入れておく(OpenNext の populate-cache): デプロイする人に、ストレージアカウントのデータロールが必要になり、値の形が、Next.js のバージョンによって違いますが、上のクラスは、それをすでに知っています。ファイルの形式を、ハンドラーの中で再現する: バージョン 15 と 16 をまたぐと、壊れやすくなります。
 
-**結果。** ハンドラーは、Next.js の内部のパス(`next/dist/server/lib/incremental-cache/file-system-cache`)に依存します。E2E スイートは、CI で 15 と 16 の両方で動き、クラスがないときは、以前の動作に縮退します。`dynamicParams = false` が動きます(ローカルの E2E: ビルドされたパス、不明なパスは 404、古いページは配信して再生成。Functions ホスト上の、Next.js 16.4.5 のドキュメントサイト)。最初のリクエストが、ビルドされたページを、もう一度レンダリングすることはなくなりました。prime は残します。インスタンスを温め、古いページの再生成を始めます。Azure で検証すること: Next.js 15 と 16 で、デプロイに対して、同じ E2E のケース。
+**結果。** ハンドラーは、Next.js の内部のパス(`next/dist/server/lib/incremental-cache/file-system-cache`)に依存します。E2E スイートは、CI で 15 と 16 の両方で動き、クラスがないときは、以前の動作に縮退します。`dynamicParams = false` が動きます(ローカルの E2E: ビルドされたパス、不明なパスは 404、古いページは配信して再生成。Functions ホスト上の、Next.js 16.4.5 のドキュメントサイト)。最初のリクエストが、ビルドされたページを、もう一度レンダリングすることはなくなりました。prime は残します。インスタンスを温め、古いページの再生成を始めます。Azure での検証: Next.js 15 と 16 で、デプロイに対して、同じ E2E のケース(2026-11-14)。
 
 ## ADR-0023: Releases are tags, published with trusted publishing, without Changesets
 
