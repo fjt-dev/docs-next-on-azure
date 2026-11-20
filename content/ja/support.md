@@ -24,7 +24,7 @@ source: "docs/support.md"
 ## 約束しないこと
 
 - Edge ランタイムと外部ミドルウェア(非対応)。
-- Azure Front Door、Node.js 24、ほかのリージョン、Windows のビルドマシン、Yarn 2 以降、Bun: **Unverified** です。
+- Azure Front Door(無料試用版や学生向けのサブスクリプションでは作れません。2026-11-14 に確認)、Node.js 24、ほかのリージョン、Windows のビルドマシン、Yarn 2 以降、Bun: **Unverified** です。
 - `--wait-until detach` を使う `after()`、`cacheLife` の期限切れ、`'use cache'` の `remote` と `private` の種類: **Unverified** です。
 - プライベートネットワーク、Web アプリケーションファイアウォール、お客様管理のキー、そのほかランディングゾーンの設定: テンプレートには入っていません([ADR-0019](./plan/decisions.md#adr-0019-enterprise-use-at-the-level-of-opennext))。
 - [Cost](./cost.md) ページの数字は、1 つのサイトの測定から出した見積もりです。コールドスタートと負荷の数字は、サンプル 1 回のものです。保証ではありません。

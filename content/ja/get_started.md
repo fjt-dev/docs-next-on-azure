@@ -51,7 +51,7 @@ next-on-azure deploy --resource-group <rg> --name <short-name> --location <regio
 
 | フラグ | 既定値 | 効果 |
 | --- | --- | --- |
-| `--front-door` | オフ | [Azure Front Door](https://learn.microsoft.com/azure/frontdoor/front-door-overview?wt.mc_id=studentamb_679600) を前に置きます(固定の基本料金がかかります)。アプリは、Front Door を通っていないリクエストを拒否します(`X-Azure-FDID`)。**これまでデプロイしたことはありません。** |
+| `--front-door` | オフ | [Azure Front Door](https://learn.microsoft.com/azure/frontdoor/front-door-overview?wt.mc_id=studentamb_679600) を前に置きます(固定の基本料金がかかります)。アプリは、Front Door を通っていないリクエストを拒否します(`X-Azure-FDID`)。**これまで、デプロイに成功したことはありません。** 無料試用版や学生向けのサブスクリプションでは、Azure に拒否されます(2026-11-14)。従量課金のサブスクリプションを使ってください。 |
 | `--wait-until hold\|detach` | `hold` | レスポンスが完了したあと、`after()` のような後回しの処理をどうするかです。`hold` は、処理が終わるまでレスポンスを開いたままにします。`detach` はすぐに応答しますが、短い処理にしか安全ではありません(アイドルのインスタンスは、約 1.5〜3.5 分で削除されます)。 |
 | `--always-ready <n>` | `0` | HTTP 関数のインスタンスを `n` 個動かし続けて、リクエストがコールドスタートを待たないようにします。常に課金されます。測定は 1 回だけで、約 17 分アイドルしたあとの最初のリクエストが、2.4 秒ではなく 0.15 秒でした。 |
 | `--memory <512\|2048\|4096>` | `2048` | 各インスタンスのメモリ(MB)です。[Flex Consumption](https://learn.microsoft.com/azure/azure-functions/flex-consumption-plan?wt.mc_id=studentamb_679600) は、メモリと実行時間を掛けて課金します。Azure での実測(ドキュメントサイト、2026-11-10)では、512 MB だと 1 リクエストの時間が 2048 MB の約 4 倍になり、GB 秒は同じで、インスタンス数が増えました。**この CPU に偏った負荷では、小さくしても節約になりませんでした。** サイトは 512 MB でも正しく動きました。`sharp` による画像は、試していません。 |

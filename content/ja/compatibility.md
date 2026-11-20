@@ -40,7 +40,7 @@ source: "docs/compatibility.md"
 | `next build` でプリレンダリングされたページ | Next.js は、カスタムキャッシュハンドラー経由では読みません。そのため、Blob にないとき、ハンドラーが自分でビルド出力から読みます。Next.js 自身のファイルシステムキャッシュのクラスを使います(読み取り専用。タグの再検証は、ほかのエントリと同じように Table Storage に対して確認します。[ADR-0022](./plan/decisions.md#adr-0022-the-cache-handler-reads-the-build-output-on-a-miss))。2026-11-11 から **Verified (local)**、2026-11-14 から **Verified (Azure)** です(コミット 3006689、Next.js 15.5.29 と 16.4.5。`deploy` の直後に、プリレンダリング済みのすべてのルートが、prime のリクエストで `HIT` を返し、HTTP スイートは、どちらも 50 件中 50 件が合格しました)。変更の前は、各ページを最初のリクエストでレンダリングし、`deploy` が prime していました。`deploy` は今も、すべてのルートを 1 回 prime します。 |
 | `dynamicParams = false`(App Router)、`fallback: false`(Pages Router) | App Router: 2026-11-11 まで、すべてのパスが 404 を返しました(Azure でもローカルでも。フォールバックがないとき、Next.js はキャッシュにないページをレンダリングしません)。現在は、ビルドされたページをビルド出力から見つけます。パスは 200、不明なパスは 404、古いページは配信して再生成します。**Verified (Azure)**(2026-11-14。Next.js 15.5.29 と 16.4.5、`routes without a fallback` の E2E のケース。手で確認: ビルドされたパスは 200、不明なパスは 404。どちらも)と Verified (local) です。Pages Router の `fallback: false`: Verified (local)。影響は受けませんでした。 |
 | Edge ランタイム | 非対応 |
-| [Front Door](https://learn.microsoft.com/azure/frontdoor/front-door-overview?wt.mc_id=studentamb_679600) | テンプレートはコンパイルできます。**一度もデプロイしていません**。エントリの `X-Azure-FDID` の確認は、単体テストだけで Verified (local) です。 |
+| [Front Door](https://learn.microsoft.com/azure/frontdoor/front-door-overview?wt.mc_id=studentamb_679600) | テンプレートはコンパイルできます。**2026-11-14 にデプロイを試みましたが、サブスクリプションに拒否されました**: `Free Trial and Student account is forbidden for Azure Frontdoor resources`(メンテナーの Azure for Students のサブスクリプションで、`Microsoft.Cdn` を登録したあと)。Azure では、今も **Unverified** です。エントリの `X-Azure-FDID` の確認は、単体テストだけで Verified (local) です。 |
 
 ## プラットフォーム
 
