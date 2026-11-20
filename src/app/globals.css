@@ -182,6 +182,8 @@ kbd { font-family: var(--mono); font-size: 11px; padding: 1px 5px; border: 1px s
 
 .content-col { flex: 1; min-width: 0; }
 .page { display: flex; justify-content: center; gap: 0; max-width: 1184px; margin: 0 auto; }
+.site-footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border); color: var(--muted); font-size: 14px; line-height: 22px; }
+.site-footer a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
 .main { flex: 1; min-width: 0; max-width: 928px; padding: 24px 48px 80px; }
 .toc { flex: 0 0 var(--toc-w); width: var(--toc-w); position: sticky; top: var(--header-h); align-self: flex-start; max-height: calc(100dvh - var(--header-h)); overflow-y: auto; padding: 32px 16px 24px 8px; font-size: 14px; }
 .toc-title { margin: 0 0 8px; font-size: 14px; font-weight: 600; color: var(--heading); }

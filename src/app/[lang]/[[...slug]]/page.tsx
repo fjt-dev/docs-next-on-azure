@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { CodeCopy } from "@/components/CodeCopy";
 import { PrevNext } from "@/components/PrevNext";
+import { SiteFooter } from "@/components/SiteFooter";
 import { Toc } from "@/components/Toc";
 import { TranslationNotice } from "@/components/TranslationNotice";
 import { getPage, routes } from "@/lib/content";
@@ -43,6 +44,7 @@ export default async function DocPage({ params }: { params: Promise<Params> }) {
         <article className="prose" dangerouslySetInnerHTML={{ __html: page.html }} />
         <CodeCopy />
         <PrevNext lang={lang} route={page.route} />
+        <SiteFooter lang={lang} />
       </main>
       <Toc headings={page.headings} editUrl={editBase && page.source ? `${editBase}/${page.source}` : undefined} />
     </div>

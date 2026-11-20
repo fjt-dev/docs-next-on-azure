@@ -17,6 +17,7 @@ const navEn: NavItem[] = [
   { title: "Cost", href: "/cost" },
   { title: "Your own infrastructure", href: "/infrastructure" },
   { title: "How does it work?", href: "/how_it_works" },
+  { title: "How this site is hosted", href: "/hosting" },
   { title: "FAQ", href: "/faq" },
   { title: "Troubleshooting", href: "/troubleshooting" },
 ];
@@ -31,6 +32,7 @@ const titlesJa: Record<string, string> = {
   Cost: "費用",
   "Your own infrastructure": "自前のインフラ",
   "How does it work?": "仕組み",
+  "How this site is hosted": "このサイトのホスティング",
   FAQ: "FAQ",
   Troubleshooting: "トラブルシューティング",
 };

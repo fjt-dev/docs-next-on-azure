@@ -37,6 +37,8 @@ export type Strings = {
   previous: string;
   next: string;
   pagination: string;
+  builtWith: string;
+  builtWithLink: string;
   breadcrumb: string;
   toggleNav: string;
   closeNav: string;
@@ -75,6 +77,8 @@ export const ui: Record<Lang, Strings> = {
     previous: "Previous",
     next: "Next",
     pagination: "Pagination",
+    builtWith: "This site is built and hosted with next-on-azure on Azure Functions.",
+    builtWithLink: "How it is hosted",
     breadcrumb: "Breadcrumb",
     toggleNav: "Toggle navigation",
     closeNav: "Close navigation",
@@ -105,6 +109,8 @@ export const ui: Record<Lang, Strings> = {
     previous: "前へ",
     next: "次へ",
     pagination: "ページ送り",
+    builtWith: "このサイトは、next-on-azure でビルドし、Azure Functions でホストしています。",
+    builtWithLink: "ホスティングの詳細",
     breadcrumb: "パンくずリスト",
     toggleNav: "ナビゲーションを開閉",
     closeNav: "ナビゲーションを閉じる",
