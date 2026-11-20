@@ -13,6 +13,12 @@ const useIsomorphicLayoutEffect = typeof window === "undefined" ? useEffect : us
 export function ThemeSync() {
   useIsomorphicLayoutEffect(() => {
     applyPreference(readPreference());
+    // The choice can change in another tab.
+    const onStorage = (event: StorageEvent) => {
+      if (event.key === "theme" || event.key === null) applyPreference(readPreference());
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
   }, []);
   return null;
 }

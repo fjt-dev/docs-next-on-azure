@@ -41,15 +41,6 @@ export function ThemeMenu() {
     setPreference(readPreference());
   }, []);
 
-  // While the preference is "device default", follow the operating system.
-  useEffect(() => {
-    if (preference !== "system") return;
-    const query = matchMedia("(prefers-color-scheme: dark)");
-    const onChange = () => applyPreference("system");
-    query.addEventListener("change", onChange);
-    return () => query.removeEventListener("change", onChange);
-  }, [preference]);
-
   const choose = (next: Preference) => {
     setPreference(next);
     applyPreference(next);

@@ -13,14 +13,19 @@ export function readPreference(): Preference {
 
 export function savePreference(preference: Preference) {
   try {
-    localStorage.setItem("theme", preference);
+    // "system" is the default: no stored value, so that a pinned scheme is never kept by accident.
+    if (preference === "system") localStorage.removeItem("theme");
+    else localStorage.setItem("theme", preference);
   } catch {
     // ignore
   }
 }
 
-/** Puts the theme on <html>. */
+/**
+ * Puts the choice into <meta name="color-scheme">: "light dark" follows the system, "light" and "dark"
+ * pin a scheme. The CSS maps the meta tag to the color-scheme property, and light-dark() follows it.
+ */
 export function applyPreference(preference: Preference) {
-  const dark = preference === "dark" || (preference === "system" && matchMedia("(prefers-color-scheme: dark)").matches);
-  document.documentElement.dataset.theme = dark ? "dark" : "light";
+  const meta = document.querySelector('meta[name="color-scheme"]');
+  if (meta) meta.setAttribute("content", preference === "system" ? "light dark" : preference);
 }

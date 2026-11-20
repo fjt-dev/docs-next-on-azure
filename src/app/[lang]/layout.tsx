@@ -23,24 +23,28 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
 }
 
 export const viewport: Viewport = {
-  colorScheme: "light dark",
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#ffffff" },
     { media: "(prefers-color-scheme: dark)", color: "#111111" },
   ],
 };
 
-// Sets the theme before the first paint, so that a dark page does not flash white.
-const themeScript = `(function(){try{var p=localStorage.getItem("theme")||"system";var d=p==="dark"||(p==="system"&&matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.dataset.theme=d?"dark":"light";}catch(e){document.documentElement.dataset.theme="dark";}})();`;
+// Applies a saved choice of colour scheme before the first paint, so that the page does not flash in
+// the wrong scheme. The choice is the content of <meta name="color-scheme"> ("light dark" follows the
+// system); the CSS maps it to the color-scheme property. Nothing else runs here (modern-web-guidance,
+// dark-mode-toggle).
+const themeScript = `(function(){try{var p=localStorage.getItem("theme");if(p==="light"||p==="dark")document.querySelector('meta[name="color-scheme"]').content=p;}catch(e){}})();`;
 
 export default async function RootLayout({ children, params }: { children: ReactNode; params: Promise<{ lang: string }> }) {
   const { lang } = await params;
   if (!isLang(lang)) notFound();
   return (
-    // No data-theme here: the script below sets it, and React would put the server value back on every
-    // client-side navigation (for example when the language changes).
+    // The script below changes the meta tag before React hydrates; suppressHydrationWarning keeps React
+    // from putting the server value back, also on a client-side navigation (a change of language).
     <html lang={lang} suppressHydrationWarning>
       <head>
+        {/* itemProp: React 19 hoists a plain <meta> and, after the script changed it, would add a second one on hydration. */}
+        <meta name="color-scheme" content="light dark" itemProp="color-scheme" suppressHydrationWarning />
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body>
