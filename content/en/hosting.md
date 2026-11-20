@@ -26,7 +26,7 @@ next-on-azure deploy --resource-group <rg> --name <short-name> --location japane
 - `--request-telemetry errors` sends only failures to Application Insights, which keeps its data small ([Cost](/cost)).
 - `--max-instances 10` bounds the instance count, so that a burst of requests cannot scale without limit.
 - `--cache-retention-days 30` deletes cache entries of old builds.
-- After each deployment, `deploy` requests every prerendered page once, so that the pages are in the cache before the first visitor arrives. This site has 24 of them.
+- After each deployment, `deploy` requests every prerendered page once, so that the pages are in the cache before the first visitor arrives.
 - A monthly budget alert is set on the resource group.
 
 The source of the site is in the [documentation repository](https://github.com/fjt-dev/docs-next-on-azure). The cost of this site is not published yet: the usage of the first days has not been reported by Azure.

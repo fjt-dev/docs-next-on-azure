@@ -26,7 +26,7 @@ next-on-azure deploy --resource-group <rg> --name <short-name> --location japane
 - `--request-telemetry errors` は、失敗だけを Application Insights に送り、データ量を小さく保ちます([費用](/cost))。
 - `--max-instances 10` は、インスタンス数を抑え、急なアクセスで無制限にスケールしないようにします。
 - `--cache-retention-days 30` は、古いビルドのキャッシュエントリを削除します。
-- デプロイのたびに、`deploy` がプリレンダリングされたすべてのページを 1 回要求し、最初の訪問者が来る前に、ページをキャッシュに入れます。このサイトでは 24 ページです。
+- デプロイのたびに、`deploy` がプリレンダリングされたすべてのページを 1 回要求し、最初の訪問者が来る前に、ページをキャッシュに入れます。
 - リソースグループには、月ごとの予算アラートを設定しています。
 
 サイトのソースは、[ドキュメントのリポジトリ](https://github.com/fjt-dev/docs-next-on-azure)にあります。このサイトの費用は、まだ公開していません。Azure が、最初の数日分の使用量を、まだ報告していないためです。
