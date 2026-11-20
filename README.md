@@ -33,11 +33,7 @@ The site is in English (`/en/...`) and Japanese (`/ja/...`). A path without a la
 
 ## The package
 
-next-on-azure is not published, so the site installs a tarball from `vendor/`. After the package changed:
-
-```bash
-pnpm vendor                 # npm pack in the repository, then reinstall
-```
+The site installs `next-on-azure` from npm at a fixed version (`package.json`). To try an unreleased change, pack the package in its repository (`npm pack` in `packages/next-on-azure`) and install the tarball temporarily; do not commit that.
 
 ## Run it the way Azure does
 
