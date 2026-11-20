@@ -3,7 +3,7 @@ title: "Overview"
 description: "Run a Next.js app on one Azure Function (Flex Consumption) with Blob and Table Storage."
 ---
 
-> **Experimental, pre-release, not published to npm.**
+> **Experimental.** `0.1.0` is on [npm](https://www.npmjs.com/package/next-on-azure).
 
 ## next-on-azure
 
@@ -45,7 +45,7 @@ next-on-azure package
 next-on-azure deploy --resource-group <rg> --name <short-name> --location <region>
 ```
 
-The package is not published, so this works from a checkout of the repository only. The full guide is [Get started](/get_started).
+Install it first with `npm install next-on-azure`. The full guide is [Get started](/get_started).
 
 ## Where to go next
 

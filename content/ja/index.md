@@ -3,7 +3,7 @@ title: "概要"
 description: "Next.js アプリを、Blob Storage と Table Storage を使う 1 つの Azure Function(Flex Consumption)で動かします。"
 ---
 
-> **実験的・リリース前・npm には未公開です。**
+> **実験的です。** `0.1.0` を [npm](https://www.npmjs.com/package/next-on-azure) で公開しています。
 
 ## next-on-azure
 
@@ -45,7 +45,7 @@ next-on-azure package
 next-on-azure deploy --resource-group <rg> --name <short-name> --location <region>
 ```
 
-パッケージは公開していないので、これはリポジトリのチェックアウトからのみ動かせます。詳しい手順は[はじめに](/get_started)にあります。
+先に `npm install next-on-azure` でインストールしてください。詳しい手順は[はじめに](/get_started)にあります。
 
 ## 次に読むもの
 

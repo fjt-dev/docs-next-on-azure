@@ -3,7 +3,7 @@ title: "はじめに"
 source: "docs/get_started.md"
 ---
 
-> **実験的・リリース前です。** パッケージはまだ npm に公開していないので、インストールの手順は、このリポジトリのチェックアウトからのみ動かせます(`examples/standalone` が動作するアプリです)。確認済みの内容は[互換性](./compatibility.md)にあります。
+> **実験的です。** `0.1.0` を npm で公開しています(リポジトリの `examples/standalone` が動作するアプリです)。確認済みの内容は[互換性](./compatibility.md)にあります。
 
 ## 前提条件
 
@@ -12,7 +12,13 @@ source: "docs/get_started.md"
 - [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli?wt.mc_id=studentamb_679600)(`az login` でサインイン済みで、リソースグループにリソースを作成する権限があること)
 - `zip` コマンドが PATH にあること(`package` が使います)
 
-## 1. Next.js を設定する
+## 1. インストールと Next.js の設定
+
+```bash
+npm install next-on-azure   # または pnpm add next-on-azure、yarn add next-on-azure(Yarn 1)
+```
+
+パッケージは、`next` を peer 依存にしています。空のプロジェクトに、Next.js 16.4.5 と `0.1.0` をインストールすることは、2026-11-20 に確認しました(npm)。
 
 ```js
 // next.config.mjs
