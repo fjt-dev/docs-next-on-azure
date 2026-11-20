@@ -25,6 +25,7 @@
   --pre-bg: rgba(138, 208, 255, 0.1);
   --callout-bg: rgba(82, 186, 255, 0.08);
   --hover: rgba(255, 255, 255, 0.06);
+  --scroll-shadow: rgba(255, 255, 255, 0.14);
   color-scheme: dark;
 }
 
@@ -43,6 +44,7 @@
   --pre-bg: rgba(0, 105, 184, 0.05);
   --callout-bg: rgba(0, 105, 184, 0.06);
   --hover: rgba(0, 0, 0, 0.05);
+  --scroll-shadow: rgba(0, 0, 0, 0.16);
   color-scheme: light;
 }
 
@@ -174,7 +176,19 @@ kbd { font-family: var(--mono); font-size: 11px; padding: 1px 5px; border: 1px s
 :root[data-theme="light"] .shiki, :root[data-theme="light"] .shiki span { color: var(--shiki-light); }
 .prose pre.shiki { background-color: var(--pre-bg); }
 
-.table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 8px; }
+/* A wide table scrolls inside the page. Shadows at the edges show that there is more to scroll to
+   (modern-web-guidance, scrollability-affordance-hints: background attachment; works in every browser).
+   The "local" covers scroll with the table and hide a shadow at the end of the content. */
+.table-wrap {
+  overflow-x: auto; border: 1px solid var(--border); border-radius: 8px;
+  background:
+    linear-gradient(to right, var(--bg) 30%, transparent) left / 2.5rem 100% no-repeat local,
+    linear-gradient(to left, var(--bg) 30%, transparent) right / 2.5rem 100% no-repeat local,
+    radial-gradient(farthest-side at 0 50%, var(--scroll-shadow), transparent) left / .75rem 100% no-repeat,
+    radial-gradient(farthest-side at 100% 50%, var(--scroll-shadow), transparent) right / .75rem 100% no-repeat,
+    var(--bg);
+}
+.table-wrap:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .prose table { width: 100%; border-collapse: collapse; font-size: 14px; line-height: 22px; }
 .prose th { text-align: left; font-weight: 600; color: var(--heading); background: var(--hover); white-space: nowrap; }
 .prose th, .prose td { padding: 8px 12px; border-bottom: 1px solid var(--border); vertical-align: top; min-width: 120px; }

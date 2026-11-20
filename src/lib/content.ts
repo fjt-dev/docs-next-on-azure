@@ -93,15 +93,21 @@ function rewriteLinks(lang: Lang, source: string | undefined, known: Map<string,
   };
 }
 
-/** Wraps tables so that a wide one scrolls inside the page. */
-function wrapTables() {
+/**
+ * Wraps tables so that a wide one scrolls inside the page. The wrapper is a named region that a
+ * keyboard can focus and scroll (modern-web-guidance, responsive-table); its name is the heading
+ * above the table, or the title of the page.
+ */
+function wrapTables(pageTitle: string) {
   return (tree: HastRoot) => {
+    let heading = pageTitle;
     visit(tree, "element", (node: Element, index, parent) => {
+      if (/^h[1-6]$/.test(node.tagName)) heading = toString(node);
       if (node.tagName !== "table" || !parent || index === undefined) return;
       parent.children[index] = {
         type: "element",
         tagName: "div",
-        properties: { className: ["table-wrap"] },
+        properties: { className: ["table-wrap"], tabIndex: 0, role: "region", ariaLabel: heading ? `${heading}: table` : "Table" },
         children: [node],
       };
       return "skip";
@@ -157,7 +163,7 @@ export async function getPage(lang: Lang, route: string): Promise<Page | undefin
           },
         ],
       })
-      .use(wrapTables)
+      .use(wrapTables, String(data.title ?? ""))
       .use(rehypeStringify)
       .process(content),
   );
