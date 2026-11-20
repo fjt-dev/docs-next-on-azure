@@ -7,7 +7,7 @@ export type NavItem = {
   children?: NavItem[];
 };
 
-/** The sidebar, in the order of the OpenNext documentation (https://opennext.js.org/aws). */
+/** The sidebar. Only pages for people who use the package; the repository holds the maintainers' documents. */
 const navEn: NavItem[] = [
   { title: "Overview", href: "/" },
   { title: "Get started", href: "/get_started" },
@@ -15,32 +15,10 @@ const navEn: NavItem[] = [
   { title: "Configuration", href: "/configuration" },
   { title: "Comparison", href: "/comparison" },
   { title: "Cost", href: "/cost" },
-  { title: "Support", href: "/support" },
   { title: "Your own infrastructure", href: "/infrastructure" },
-  {
-    title: "How does it work?",
-    href: "/how_it_works",
-    children: [
-      { title: "Overview", href: "/how_it_works" },
-      { title: "Azure notes", href: "/how_it_works/azure_notes" },
-      { title: "Decision records", href: "/how_it_works/decisions" },
-    ],
-  },
+  { title: "How does it work?", href: "/how_it_works" },
   { title: "FAQ", href: "/faq" },
   { title: "Troubleshooting", href: "/troubleshooting" },
-  {
-    title: "Contributing",
-    href: "/contribute",
-    children: [
-      { title: "Overview", href: "/contribute" },
-      { title: "Run locally", href: "/contribute/local_run" },
-      { title: "Testing", href: "/contribute/testing" },
-      { title: "CI", href: "/contribute/ci" },
-      { title: "Real Azure runs", href: "/contribute/azure_runs" },
-      { title: "Azure E2E", href: "/contribute/azure_e2e" },
-      { title: "Supply chain", href: "/contribute/supply_chain" },
-    ],
-  },
 ];
 
 /** The sidebar titles in Japanese, by the English title. */
@@ -51,20 +29,10 @@ const titlesJa: Record<string, string> = {
   Configuration: "設定",
   Comparison: "比較",
   Cost: "費用",
-  Support: "サポート",
   "Your own infrastructure": "自前のインフラ",
   "How does it work?": "仕組み",
-  "Azure notes": "Azure のメモ",
-  "Decision records": "設計判断の記録",
   FAQ: "FAQ",
   Troubleshooting: "トラブルシューティング",
-  Contributing: "コントリビューション",
-  "Run locally": "ローカルで動かす",
-  Testing: "テスト",
-  CI: "CI",
-  "Real Azure runs": "Azure での実行",
-  "Azure E2E": "Azure E2E",
-  "Supply chain": "サプライチェーン",
 };
 
 /** The title of a page in the language of the site: the interface is translated even where the text is not. */

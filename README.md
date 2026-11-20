@@ -14,13 +14,9 @@ pnpm typecheck
 
 ## Content
 
-`content/en/` holds the English pages. All but `index.md` are copied from the `docs/` directory of the repository:
+`content/en/` holds the English pages and `content/ja/` the Japanese ones. They are written for people who use the package; the maintainers' documents (decision records, tests, CI, release, cost measurements) stay in the `docs/` directory of the next-on-azure repository and are not copied here.
 
-```bash
-pnpm sync:content           # NEXT_ON_AZURE_REPO or the sibling directory
-```
-
-The sidebar is `src/lib/nav.ts`. Links between pages are rewritten from the repository's relative Markdown links; a link to something that is not on the site becomes plain text. Set `NEXT_PUBLIC_EDIT_BASE` at build time (for example `https://github.com/<owner>/<repo>/blob/main`) to get an "Edit this page" link. `NEXT_PUBLIC_FEEDBACK_URL` adds the "Question? Give us feedback" link under "On This Page", and `NEXT_PUBLIC_REPO_URL` the GitHub icon in the header; all three are left out while the repository is private.
+The sidebar is `src/lib/nav.ts`. Relative Markdown links between pages (`./compatibility.md`) are rewritten to site routes by the `source` front matter of each page; a link to something that is not on the site becomes plain text. Set `NEXT_PUBLIC_EDIT_BASE` at build time (for example `https://github.com/<owner>/<repo>/blob/main`) to get an "Edit this page" link. `NEXT_PUBLIC_FEEDBACK_URL` adds the "Question? Give us feedback" link under "On This Page", and `NEXT_PUBLIC_REPO_URL` the GitHub icon in the header; all three are left out while the repository is private.
 
 ## Languages
 
@@ -29,7 +25,7 @@ The site is in English (`/en/...`) and Japanese (`/ja/...`). A path without a la
 - `content/ja/` holds the Japanese pages, with the same file names and the same `source` front matter as the English ones. A page that is not there is shown in English, with a notice.
 - A translated Japanese page has the notice that the text may be machine or AI translated; a page without a translation says so instead, in the same band, with a "request a translation" link that opens a new GitHub issue with the page filled in (`TranslationNotice`, `src/lib/site.ts`; the repository is `NEXT_PUBLIC_ISSUES_URL`, default `fjt-dev/docs-next-on-azure`).
 - The texts of the interface and the sidebar titles are in `src/lib/i18n.ts` and `src/lib/nav.ts`. To add a language, add it to `langs`, `ui` and the nav titles, and a `content/<lang>/` directory.
-- Translated so far: overview, get started, configuration, FAQ. The English page changes first; the translation follows by hand (`sync:content` only writes `content/en/`).
+- Every page has a Japanese translation. Change the English page first; the translation follows by hand.
 
 ## The package
 

@@ -158,12 +158,12 @@ kbd { font-family: var(--mono); font-size: 11px; padding: 1px 5px; border: 1px s
 
 .prose pre { position: relative; padding: 16px 0; border-radius: 12px; background: var(--pre-bg); overflow-x: auto; font-size: 14px; line-height: 22px; }
 .prose pre code { display: block; width: max-content; min-width: 100%; padding: 0 16px; background: none; border: 0; border-radius: 0; font-size: inherit; overflow-wrap: normal; }
-.prose pre[data-title] { padding-top: 48px; }
+.prose pre[data-title] { padding-top: 52px; }
 .prose pre[data-title]::before {
   content: attr(data-title);
-  position: absolute; top: 0; left: 0; right: 0; height: 34px; padding: 8px 16px;
-  font-family: var(--font); font-size: 12px; line-height: 18px; color: var(--code-title);
-  border-radius: 12px 12px 0 0; background: var(--pre-bg);
+  position: absolute; top: 0; left: 0; right: 0; box-sizing: border-box; height: 36px; padding: 8px 16px;
+  font-family: var(--font); font-size: 12px; line-height: 20px; color: var(--code-title);
+  border-bottom: 1px solid var(--border); border-radius: 12px 12px 0 0;
 }
 .copy-button { position: absolute; top: 8px; right: 8px; z-index: 1; display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; padding: 0; border: 1px solid var(--border); border-radius: 6px; background: var(--bg); color: var(--muted); opacity: 0; transition: opacity 0.15s; }
 .prose pre:hover .copy-button, .copy-button:focus-visible, .copy-button[data-copied] { opacity: 1; }
@@ -177,7 +177,7 @@ kbd { font-family: var(--mono); font-size: 11px; padding: 1px 5px; border: 1px s
 .table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 8px; }
 .prose table { width: 100%; border-collapse: collapse; font-size: 14px; line-height: 22px; }
 .prose th { text-align: left; font-weight: 600; color: var(--heading); background: var(--hover); white-space: nowrap; }
-.prose th, .prose td { padding: 8px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+.prose th, .prose td { padding: 8px 12px; border-bottom: 1px solid var(--border); vertical-align: top; min-width: 120px; }
 .prose tr:last-child td { border-bottom: 0; }
 .prose td code, .prose th code { white-space: nowrap; }
 

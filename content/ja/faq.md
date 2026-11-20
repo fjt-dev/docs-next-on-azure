@@ -3,26 +3,26 @@ title: "FAQ"
 source: "docs/faq.md"
 ---
 
-## なぜ Container Apps や App Service ではなく Functions なのですか。
+## なぜ Container Apps や App Service ではなく、Functions なのですか?
 
-[ADR-0001](./plan/decisions.md#adr-0001-compute-and-storage-targets)を参照してください。Flex Consumption の Functions は、ゼロまでスケールダウンでき、レスポンスをストリーミングできます。コンテナーなら、転送の手順なしで standalone サーバーを動かせるので、将来、2 つ目の対象にするかもしれません。
+Flex Consumption の Functions は、ゼロまでスケールインし、レスポンスをストリーミングできます。動いた分だけ支払い、小さなサイトなら無料枠に収まります。
 
-## タグに Cosmos DB ではなく Table Storage を使うのはなぜですか。
+## Front Door なしで使えますか?
 
-[ADR-0003](./plan/decisions.md#adr-0003-table-storage-for-the-tag-cache)を参照してください。キャッシュハンドラーは 1 つのファイルなので、別のストアを使うには、そのファイルを置き換えます。
+はい、それが既定です。静的ファイルも関数が配信するので、アクセスの多いサイトでは、前に CDN を置いてください。
 
-## Front Door なしで使えますか。
+## 費用はいくらですか?
 
-はい。それが既定です。静的ファイルも関数が配信するので、アクセスの多いサイトでは、CDN を前に置いてください。
+トラフィックによります。小さなサイトは Azure Functions の無料枠に収まります。アクセスの多いサイトは、実行、インスタンスの時間、Application Insights、アウトバウンドのデータに支払います。[費用](./cost.md)に、トラフィック別の見積もりと、費用を下げる方法があります。
 
-## ローカルで動かせますか。
+## デプロイのあとの最初のリクエストが遅いのはなぜですか?
 
-はい。[ローカル開発](./contribute/local_run.md)を参照してください。
+`--always-ready` がないと、インスタンスは最初のリクエストで起動します(アイドルのあとで約 2.5 秒)。`deploy` が、そのリクエストを自分で行い、プリレンダリングされたページを prime するので、訪問者には起きません。
 
-## 費用はどのくらいですか。
+## ローカルで動かせますか?
 
-アクセス数によります。小さなサイトは、Azure Functions の無料枠に収まります。アクセスの多いサイトは、実行回数、インスタンスの稼働時間、Application Insights、外向きのデータ転送の分を払います。[費用](./cost.md)に、ドキュメントサイトで Azure 上で実測した結果、アクセス数ごとの試算(月 10 万訪問で約 0.2 ドル、100 万訪問で約 22〜62 ドル)、費用を下げる方法を書いています。常時稼働インスタンス(`--always-ready`)は、常に課金されます([ADR-0013](./plan/decisions.md#adr-0013-cold-start-always-ready-instances-first-no-timer-warmer-yet)を参照)。
+はい。`next-on-azure package --target local` で、自分のマシン用のパッケージを作り、Azure Functions Core Tools と [Azurite](https://learn.microsoft.com/azure/storage/common/storage-use-azurite?wt.mc_id=studentamb_679600) で動かします。リポジトリに、動作するサンプルアプリと、そのためのスクリプトがあります。
 
-## デプロイ直後の最初のリクエストが遅いのはなぜですか。
+## 問題はどこに報告すればよいですか?
 
-`--always-ready` を使わない場合、インスタンスは最初のリクエストで起動します(アイドル後の測定で 2.4 秒。`--always-ready 1` なら 0.15 秒)。`deploy` は、そのリクエストを自分で送り、プリレンダリングされたページもプライミングするので、訪問者は待たされません。
+[GitHub](https://github.com/fjt-dev/next-on-azure/issues) です。

@@ -6,46 +6,40 @@ source: "docs/how_it_works.md"
 ## The request path
 
 ```
-client ──▶ Functions front end ──▶ Function `server` ({*path}) ──loopback──▶ Next.js server (same worker)
-                                                                                  │
-                                                         cache handlers ──▶ Blob (entries) + Table (tags)
+client ──▶ Functions front end ──▶ Function `server` ──loopback──▶ Next.js server (same worker)
+                                                                        │
+                                          cache handlers ──▶ Blob (entries) + Table (tags)
 ```
 
-- The Function app has **one function**, `server`, on `{*path}` with streaming enabled (`main.mjs`, from `src/runtime/entry.mjs`). The first request starts the Next.js standalone server (`server.js`) inside the same worker, on `127.0.0.1:3000`, and waits until the port is open.
-- Every request is forwarded to that server with `node:http`. The response is passed on as a stream. `Set-Cookie` values are converted to the structured `cookies` of the Functions response, because the host keeps only one value per header name.
-- `x-forwarded-proto` is not forwarded: with `https`, Next.js stops treating its own loopback address as the same origin and a middleware rewrite fails with a 500. The public scheme is put back into the `Location` header of redirects.
-- Request bodies are buffered before they are forwarded (forwarding the host's request stream hung on POST).
-- Routing, rendering, middleware, Server Actions, streaming and image optimization are done by Next.js itself. This package does not reimplement any of them.
+- The Function app has **one function**, `server`, that answers every route with streaming enabled. The first request starts the Next.js standalone server inside the same worker, on `127.0.0.1:3000`, and waits until the port is open.
+- Every request is forwarded to that server, and the response is passed on as a stream. Routing, rendering, middleware, Server Actions, streaming and image optimization are done by Next.js itself.
+- Request bodies are buffered before they are forwarded. `Set-Cookie` values are converted to the cookies of the Functions response, because the host keeps only one value per header name. The public host and scheme are put back into the `Location` header of redirects.
 
 ## Caches
 
-Next.js asks two interfaces for storage; both are implemented on Storage and loaded by path from `next.config` (`withAzure()` sets them):
+Next.js asks two interfaces for storage; the package implements both on Storage, and `withAzure()` sets them:
 
 | Interface | Used for | Storage |
 | --- | --- | --- |
-| `cacheHandler` (`cache-handler.cjs`) | pages, route handlers, `fetch` results, `revalidateTag`, `revalidatePath` | entries as JSON blobs `<build id>/<sha256 of the key>.json` in the `cache` container; Buffers and Maps are serialized; tags in the table |
-| `cacheHandlers` (`cache-handlers.cjs`) | `'use cache'` | streamed entries stored as one JSON document (value in base64) under `use-cache/<build id>/...` |
-| tags (both) | revalidation state | table `tagcache`: partition = build id, row key = base64url of the tag, `revalidatedAt` in epoch ms |
+| `cacheHandler` | pages, route handlers, `fetch` results, `revalidateTag`, `revalidatePath` | one JSON blob per entry in the `cache` container, named by build id and a hash of the key |
+| `cacheHandlers` | `'use cache'` | one JSON blob per entry, under `use-cache/<build id>/` |
+| tags (both) | revalidation state | table `tagcache`: the time each tag was last revalidated |
 
-An entry is dropped when any of its tags (and the soft tags of the request) was revalidated after it was written. A page's tags come from the `x-next-cache-tags` header, a `fetch` entry's from its context. Nothing is deleted on revalidation, so it is one small write per tag.
-
-The key prefix is the build id: a new deployment starts with an empty cache, and the old entries are never read. They are not cleaned up.
+An entry is dropped when any of its tags was revalidated after it was written. Nothing is deleted on revalidation, so it costs one small write per tag. The key includes the build id: a new deployment starts with an empty cache, and the entries of old builds are never read (a lifecycle rule deletes them after `--cache-retention-days`).
 
 **Time-based ISR** is Next.js's own: a request that finds an entry older than `revalidate` gets the stale page at once (`x-nextjs-cache: STALE`) and the server regenerates the page in the background, in the same process. There is no queue. If the instance is removed in the meantime, the regeneration is lost and the next request starts it again.
 
-**The build output and priming.** `next build` prerenders pages into `.next/server`. Next.js reads them through its own file-system cache; with a custom cache handler it asks the handler instead. So on a miss in Blob the handler reads them itself, with Next.js's own `FileSystemCache` class (read-only, no memory cache), and checks the tags of the page against Table Storage as for any entry. A route without a fallback (`dynamicParams = false`) needs this: Next.js does not render a page that is not in the cache for such a route. Once a page is regenerated, its entry is in Blob and is read from there. `next-on-azure prime` (run by `deploy`) requests every route of `.next/prerender-manifest.json` once: it warms the instance and starts the regeneration of pages that are already past their revalidate time.
+**Prerendered pages.** `next build` prerenders pages into `.next/server`. On a miss in Blob, the cache handler reads them from there, so a built page is in the cache from the first request, and a route without a fallback (`dynamicParams = false`) works. `next-on-azure prime`, which `deploy` runs, requests every prerendered route once to warm the instance.
 
 ## `after()` and other deferred work
 
-Next.js asks the platform for `waitUntil` through `globalThis[Symbol.for("@next/request-context")]`; the entry provides it and tracks the work. A response is held open until the work registered before the response ended has settled (at most `WAIT_UNTIL_MAX_SECONDS`). The reason: an idle instance disappears after roughly 1.5 to 3.5 minutes and deferred work that outlives it is lost ([Azure notes](./inner_workings/azure_notes.md), item 18). The work cannot be tied to one request, because it is registered inside the Next.js server, which the request reached over loopback.
+An idle instance is removed after about 1.5 to 3.5 minutes, and deferred work that outlives it is lost. So a response is held open until the work that was registered before it ended has finished (at most `WAIT_UNTIL_MAX_SECONDS`, 220 by default). `--wait-until detach` ends the response at once instead.
 
 ## Packaging
 
 `next-on-azure package` makes a Function app from `.next/standalone`:
 
 1. checks the Next.js version and the Server Actions key;
-2. copies the standalone directory and turns the pnpm `node_modules` into a plain tree without symbolic links ([Azure notes](./inner_workings/azure_notes.md), item 13);
-3. copies `.next/static` and `public/` next to `server.js`, and the complete `sharp` package (file tracing leaves out `dist/index.cjs` on Next.js 16, and the optimizer then silently returns the original image), with the Linux x64 binaries for Azure;
-4. writes `main.mjs`, `cookies.mjs`, `front-door.mjs`, `host.json` (HTTP routes at `/`, no extension bundle) and a `package.json` with `@azure/functions`, installs it, and zips the result.
-
-The cache handler files are required without the `node:` prefix on purpose: Next.js 16 bundles them into the proxy bundle with Turbopack, which cannot load `node:` externals from CommonJS.
+2. copies the standalone directory and turns the pnpm `node_modules` into a plain tree without symbolic links (Azure drops them);
+3. copies `.next/static` and `public/` next to `server.js`, and the complete `sharp` package with the Linux x64 binaries;
+4. adds the Functions entry and `host.json`, installs `@azure/functions`, and zips the result.

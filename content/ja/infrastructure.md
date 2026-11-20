@@ -3,52 +3,52 @@ title: "Your own infrastructure"
 source: "docs/infrastructure.md"
 ---
 
-`next-on-azure deploy` は、`infra/main.bicep` でリソースを 1 セット作成し、そこへアプリをデプロイします。これは参考実装であり、必須ではありません。インフラをまったく作らない OpenNext と同じように、このパッケージは、自分で作ったインフラ(Bicep、Terraform、ポータル、独自のポリシーを持つランディングゾーン)でも使えます。このページでは、アプリが必要とするものを挙げます。
+`next-on-azure deploy` は、`infra/main.bicep` で 1 組のリソースを作り、アプリをデプロイします。インフラを自分で作り(Bicep、Terraform、ポータル、独自のポリシーを持つランディングゾーン)、パッケージはアプリのビルドだけに使うこともできます。このページは、アプリが必要とするものの一覧です。
 
-**状況。** 以下のリソースは、テンプレートが作成するものです。このセットは、Azure にデプロイして HTTP スイートに合格しました(2026-11-09 と 2026-11-10)。同じセットを別のツールで作る方法は **Unverified** です。テンプレートが作っていないインフラでは、ここに書いたことを何も実行していません。
+次のリソースは、テンプレートが作るもので、その組は、Azure にデプロイしてテストしました。同じ組を別のツールで作ることは、**未テスト**です。
 
 ## アプリが必要とするもの
 
-| リソース | アプリが前提にする設定 |
+| リソース | アプリが前提とする設定 |
 | --- | --- |
-| **[Flex Consumption](https://learn.microsoft.com/azure/azure-functions/flex-consumption-plan?wt.mc_id=studentamb_679600)** の Function App(Linux) | Node.js 22(24 は未検証)。システム割り当てのマネージド ID。パッケージが提供する HTTP 関数 1 つ(`server`、ルート `{*path}`)。インスタンスのメモリは 512、2048、4096 MB(検証済みは 2048)。インスタンス数の上限 |
-| ストレージアカウント | `cache` コンテナー(キャッシュエントリ)、`tagcache` テーブル(タグの状態)、Function App のデプロイ用コンテナー(テンプレートでは `deploy-app`) |
-| Application Insights(任意) | アプリの `APPLICATIONINSIGHTS_CONNECTION_STRING` |
-| [Azure Front Door](https://learn.microsoft.com/azure/frontdoor/front-door-overview?wt.mc_id=studentamb_679600)(任意) | `/_next/static/*` のキャッシュ付きルート。このとき、アプリは `X-Azure-FDID`(`FRONT_DOOR_ID`)を確認します。**一度もデプロイしていません** |
+| **[Flex Consumption](https://learn.microsoft.com/azure/azure-functions/flex-consumption-plan?wt.mc_id=studentamb_679600)** の Function App(Linux) | Node.js 22、システム割り当てのマネージド ID、インスタンスのメモリ 512、2048、4096 MB(テストしたのは 2048)、インスタンス数の上限。すべてのルートを処理する 1 つの HTTP 関数は、パッケージが提供します |
+| ストレージアカウント | `cache` コンテナー(キャッシュエントリ)、`tagcache` テーブル(タグの状態)、Function App のデプロイ用コンテナー(テンプレートは `deploy-app` を使います) |
+| Application Insights(省略可) | アプリの `APPLICATIONINSIGHTS_CONNECTION_STRING` |
+| [Azure Front Door](https://learn.microsoft.com/azure/frontdoor/front-door-overview?wt.mc_id=studentamb_679600)(省略可) | キャッシュ付きの `/_next/static/*` のルート。アプリは `X-Azure-FDID`(`FRONT_DOOR_ID`)を確認します。未テストです |
 
-テンプレートは、次の設定も行います。ストレージアカウントの TLS 1.2 以降と HTTPS のみ、共有キーのアクセスを無効、匿名の Blob アクセスを無効、大きなボディと Server Actions のための `FUNCTIONS_REQUEST_BODY_SIZE_LIMIT`。アプリが読む設定は、[Configuration](./configuration.md#環境変数) にあります。
+テンプレートは、ほかに次の設定もします。ストレージアカウントの TLS 1.2 以上と HTTPS のみ、共有キーでのアクセスをオフ、匿名の Blob アクセスをオフ、大きなボディと Server Actions のための `FUNCTIONS_REQUEST_BODY_SIZE_LIMIT`。アプリが読む設定は、[設定](./configuration.md#環境変数)にあります。
 
 ## アクセス
 
-アプリはマネージド ID を使うので、キーも接続文字列も要りません(接続文字列を受け付けるのは、[Azurite](https://learn.microsoft.com/azure/storage/common/storage-use-azurite?wt.mc_id=studentamb_679600) のときだけです)。テンプレートは、ストレージアカウントで、アプリの ID に次のロールを付与します。
+アプリはマネージド ID を使います。キーや接続文字列は要りません(接続文字列は、[Azurite](https://learn.microsoft.com/azure/storage/common/storage-use-azurite?wt.mc_id=studentamb_679600) のときだけ受け付けます)。テンプレートは、ストレージアカウントで、アプリの ID に次のロールを付与します。
 
 | ロール | 理由 |
 | --- | --- |
-| Storage Blob Data Owner | ストレージを ID で使うとき、Functions ホストとデプロイ用コンテナーが必要とします([Azure notes](./inner_workings/azure_notes.md)の項目 12)。キャッシュハンドラーも、`cache` コンテナーに同じロールを使います |
+| Storage Blob Data Owner | ID でストレージを使うとき、Functions ホストとデプロイ用コンテナーが必要とします。キャッシュハンドラーも、`cache` コンテナーに同じロールを使います |
 | Storage Table Data Contributor | タグの状態 |
-| Storage Queue Data Contributor | 最初の設計から残したものです。HTTP だけのアプリに必要かどうかは、**テストしていません** |
+| Storage Queue Data Contributor | 以前の設計から残したものです。HTTP 関数だけのアプリに必要かは、テストしていません |
 
-デプロイする人には、リソースを作成する権限(Contributor)が必要です。テンプレートまたは別のツールがこれらのロールを割り当てる場合は、その権限(Role Based Access Control Administrator または User Access Administrator)も必要です([CI での Azure E2E](./contribute/azure_e2e.md))。`az functionapp deployment source config-zip` のパッケージのアップロードは、プラットフォームがアプリの ID で行います。ロールを作った直後に、一度 403 で失敗し、約 2 分後に成功しました(2026-11-10)。
+デプロイする人は、リソースを作る権限(Contributor)と、テンプレートやほかのツールがロールを割り当てるなら、ロールを割り当てる権限(Role Based Access Control Administrator または User Access Administrator)が必要です。`az functionapp deployment source config-zip` のパッケージのアップロードは、プラットフォームが、アプリの ID で行います。ロールを作った直後には、一度 403 で失敗し、約 2 分後に成功しました。
 
-## `deploy` を使わないビルドとデプロイ
+## `deploy` を使わずにビルドしてデプロイする
 
 ```bash
-export NEXT_SERVER_ACTIONS_ENCRYPTION_KEY="$(openssl rand -base64 32)"   # the same key for every build
+export NEXT_SERVER_ACTIONS_ENCRYPTION_KEY="$(openssl rand -base64 32)"   # すべてのビルドで同じキー
 next build
-next-on-azure package                       # writes .next-azure/app.zip
+next-on-azure package                       # .next-azure/app.zip を書き出します
 az functionapp deployment source config-zip -g <rg> -n <app> --src .next-azure/app.zip
-next-on-azure prime https://<app>.azurewebsites.net   # requests every prerendered route once
+next-on-azure prime https://<app>.azurewebsites.net   # プリレンダリングされたすべてのルートを 1 回要求します
 ```
 
-`deploy` は、インフラを作ったあとで同じ手順を実行し、最初の応答を待ってから prime します。
+`deploy` は、インフラを作ったあとで、同じ手順を行い、最初の応答を待ってから prime します。
 
 ## 何がどこに保存されるか
 
-- Blob `cache`: Next.js がキャッシュする、レンダリング済みのページ、ルートハンドラーのレスポンス、`fetch` の結果と、`'use cache'` のエントリ。アプリが、1 人のユーザーに属するデータをキャッシュするなら、そのデータはこのコンテナーに入ります。キャッシュしないか、ストレージアカウントを共有しないでください。
-- Table `tagcache`: タグと、それを再検証した時刻。
-- Application Insights: Functions ホストのリクエストとトレース。既定ではサンプリングされます(`--full-telemetry` でサンプリングを止められます)。このパッケージは、リクエストボディを記録しません。
-- デプロイ用コンテナー: アプリの zip(アプリのコードと `node_modules` が入っています。アプリがビルド時のシークレットを入れていなければ、シークレットは入りません)。
+- Blob の `cache`: レンダリングしたページ、ルートハンドラーのレスポンス、Next.js がキャッシュする `fetch` の結果、`'use cache'` のエントリ。アプリが、ユーザー 1 人に属するデータをキャッシュすると、そのデータはこのコンテナーに入ります。キャッシュしないか、ストレージアカウントを共有しないでください。
+- テーブル `tagcache`: タグと、再検証した時刻。
+- Application Insights: Functions ホストのリクエストとトレース。既定ではサンプリングされます(`--full-telemetry` でオフ)。このパッケージは、リクエストのボディを記録しません。
+- デプロイ用コンテナー: アプリの zip。コードと `node_modules` が入り、アプリが入れない限り、ビルド時のシークレットは入りません。
 
 ## 提供しないもの
 
-プライベートネットワーク(VNet 統合、プライベートエンドポイント)、Web アプリケーションファイアウォール、お客様管理のキー、ゾーン冗長やジオ冗長の設定、診断設定、Azure Policy のタグは、テンプレートに入っていません。自分で作るインフラには、追加できます。ただし、このパッケージで試したものはないので、動くとは言いません。[ADR-0019](./plan/decisions.md#adr-0019-enterprise-use-at-the-level-of-opennext)を参照してください。
+プライベートネットワーク(VNet 統合、プライベートエンドポイント)、Web アプリケーションファイアウォール、お客様管理のキー、ゾーンやジオの冗長化の設定、診断設定、Azure Policy のタグは、テンプレートに入っていません。自分で作るインフラには足せますが、どれも、このパッケージでは試していません。

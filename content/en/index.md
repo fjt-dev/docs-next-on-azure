@@ -7,28 +7,25 @@ description: "Run a Next.js app on one Azure Function (Flex Consumption) with Bl
 
 ## next-on-azure
 
-`next-on-azure` runs a Next.js app on **one Azure Function (Flex Consumption)**. The Next.js standalone server runs inside the Functions worker; the package replaces only what has to be Azure-specific: the incremental cache and `'use cache'` (Blob Storage), the tag state (Table Storage), the Functions entry that forwards requests to the server, and the packaging and deployment.
-
-It uses the options Next.js documents for this (`output: "standalone"`, `cacheHandler`, `cacheHandlers`) and does not depend on `@opennextjs/aws`.
-
-Every statement about behavior on Azure is marked **Verified (Azure)**, **Verified (local)** or **Unverified** in [Compatibility](/compatibility). Nothing is described as working unless it was run.
+`next-on-azure` runs a Next.js app on **one Azure Function** ([Flex Consumption](https://learn.microsoft.com/azure/azure-functions/flex-consumption-plan?wt.mc_id=studentamb_679600)). The Next.js server runs inside the function, and the caches are kept in Blob and Table Storage, so every instance shares the same state. The app scales to zero when nobody visits.
 
 ## Features
 
-"Azure" means the HTTP suite passed on a real deployment (47 passed, 2026-11-08); "local" means Azurite and the Functions host on a developer machine and in CI.
+- App Router and Pages Router, API routes, dynamic routes
+- Server-side rendering with response streaming
+- Static generation and ISR, `revalidateTag` and `revalidatePath`
+- `'use cache'`
+- Middleware (including `proxy` on Next.js 16), Server Actions, `after()`
+- Image optimization with `sharp`
+- Next.js 15.5.29 and later 15.x, and 16.4.5 and later
 
-- App Router and Pages Router, API routes, dynamic routes (Azure)
-- Server-side rendering with response streaming (Azure)
-- Static generation and ISR with stale-while-revalidate (Azure)
-- On-demand revalidation: `revalidateTag`, `revalidatePath` (Azure)
-- `'use cache'` with tags (Azure)
-- Middleware, Server Actions, `after()` (Azure)
-- Image optimization with `sharp` (Azure)
-- Next.js 15.5.29 and 16.4.5 (Azure; also local and CI)
-
-Not checked: Front Door, always-ready instances, Partial Prerendering with this design. Not supported: the Edge runtime.
+What was tested, and what was not, is listed in [Compatibility](/compatibility). The Edge runtime is not supported.
 
 ## Quick start
+
+```bash
+npm install next-on-azure
+```
 
 ```js title="next.config.mjs"
 import { withAzure } from "next-on-azure/config";
@@ -45,14 +42,14 @@ next-on-azure package
 next-on-azure deploy --resource-group <rg> --name <short-name> --location <region>
 ```
 
-Install it first with `npm install next-on-azure`. The full guide is [Get started](/get_started).
+The full guide is [Get started](/get_started).
 
 ## Where to go next
 
 - [Get started](/get_started): install, configure, build, package and deploy
-- [Compatibility](/compatibility): Next.js versions and features, with verification status
+- [Compatibility](/compatibility): Next.js versions and features
 - [Configuration](/configuration): `withAzure()`, environment variables, the CLI
-- [How does it work?](/how_it_works): the request path, the caches, `after()`, priming, packaging
-- [Comparison](/comparison): OpenNext (AWS, Cloudflare)
+- [Cost](/cost): what is billed, and what to expect
+- [Your own infrastructure](/infrastructure): use the package without `deploy`
+- [How does it work?](/how_it_works)
 - [FAQ](/faq) and [Troubleshooting](/troubleshooting)
-- [Contributing](/contribute): run locally, tests, CI, real Azure runs

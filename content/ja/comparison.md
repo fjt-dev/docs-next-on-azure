@@ -3,20 +3,26 @@ title: "Comparison"
 source: "docs/comparison.md"
 ---
 
-## OpenNext(AWS、Cloudflare)
+Azure で Next.js アプリを動かす方法を、並べて比べます。next-on-azure は、アプリをパッケージ化して 1 つの Azure Function にデプロイします。ほかの選択肢は、Azure と Next.js が文書化している内容です。サービスは変わるので、決める前に出典を確認してください。
 
-このプロジェクトの最初の設計は、OpenNext のアダプターでした。現在の設計は、`@opennextjs/aws` を使いません([ADR-0016](./plan/decisions.md))。
+| | next-on-azure | Azure Static Web Apps(ハイブリッド) | Node.js サーバーまたは Docker コンテナー | 静的エクスポート |
+| --- | --- | --- | --- | --- |
+| 何が得られるか | アプリをパッケージ化して、1 つの Azure Function(Flex Consumption)にデプロイします | 静的ホストと、Next.js 用のマネージドバックエンド ¹ | `next start` や standalone のイメージを、選んだサービス(App Service、Container Apps、AKS)で動かします | HTML、CSS、JavaScript のファイルを、任意の静的ホストに置きます |
+| Next.js の機能 | App Router と Pages Router、SSR、ストリーミング、ISR、`revalidateTag` と `revalidatePath`、`'use cache'`、ミドルウェア、Server Actions、`after()`、`next/image`。Edge ランタイムは非対応。詳しくは[互換性](./compatibility.md) | App Router、Pages Router、React Server Components、ルートハンドラー、画像最適化、i18n、ミドルウェア ¹ | すべて ² | 限定的 ² |
+| 状態 | 実験的(`0.1.0`) | プレビュー ¹ | Next.js が対応 ² | Next.js が対応 ² |
+| ゼロまでスケールイン | はい | ドキュメントには記載がありません ¹ | サービスによります。Container Apps はできます ³ | 静的ホストにはサーバーがありません |
+| すべてのインスタンスでキャッシュを共有 | はい(Blob Storage と Table Storage) | ドキュメントには記載がありません ¹ | キャッシュハンドラーを足さない限り、インスタンスごとに別のキャッシュです ⁴ | 不要 |
+| インフラ | `deploy` が Bicep で作ります。自前のインフラも使えます([自前のインフラ](./infrastructure.md)) | Static Web Apps が作り、GitHub Actions や Azure DevOps からデプロイします | 自分で作ります | 自分で作ります |
+| 既知の制約 | Edge ランタイムは非対応。静的ファイルは関数が配信するので、アクセスの多いサイトは前に CDN が必要です。Front Door は未テスト | アプリのサイズは最大 250 MB。ISR では、画像のキャッシュに対応していません。リンクした API と SWA CLI には対応していません ¹ | イメージ、スケーリング、共有キャッシュを、自分で作り、動かします | サーバーが必要なものは動きません |
 
-| | OpenNext(`@opennextjs/aws`) | next-on-azure |
-| --- | --- | --- |
-| Next.js の動かし方 | ビルド出力を再バンドルします。ルーティング、ミドルウェア、キャッシュ、画像最適化は OpenNext 自身のサーバーコードが行い、プラットフォームへは *overrides* を通して接続します | Next.js 自身の standalone サーバーを、そのまま Function の中で動かします。Azure 固有なのは、ストレージとエントリーだけです |
-| 対応する Next.js のバージョン | OpenNext が宣言するもの | このパッケージの `next` の peer 範囲(引き継いだもので、独自に導いたものではありません) |
-| ストレージのインターフェース | OpenNext の overrides(インクリメンタルキャッシュ、タグキャッシュ、キュー など) | Next.js の `cacheHandler` と `cacheHandlers` |
-| ISR | キューのコンシューマーで再生成します | 同じプロセスの中で再生成します。キューはありません |
-| 静的ファイル | マニフェストを持つアセットリゾルバーが、Blob から配信します | Next.js サーバーが、パッケージの中から配信します |
-| 画像 | OpenNext の画像アダプター(元画像がないとき: 500 を 404 に変換) | Next.js の最適化機能(元画像がないとき: Next.js 15 では 400) |
-| 関数の分割、外部ミドルウェア、Edge ランタイム | AWS と Cloudflare で対応 | 非対応 |
-| パッケージのサイズ(同じサンプルアプリ) | zip 31.2 MB、バンドル 3 つ | zip 17.7 MB、バンドル 1 つ |
-| 約 11 分アイドルしたあとの最初のリクエスト | 4.1〜4.5 秒(以前の測定、別のパッケージ) | 2.4 秒(サンプル 1 回) |
+## ほかのプラットフォーム
 
-Next.js 自身のサーバーに由来する違いは、次のとおりです。`public/` のファイルの `Cache-Control`、JS の Content-Type が `application/javascript` であること、静的ファイルの弱い `ETag`、元画像がないときの 400 です。共通の HTTP テストスイートは、`E2E_TARGET=standalone` のとき、これらを許容します。
+- **OpenNext** は、Next.js のビルド出力を、AWS Lambda、Cloudflare、Node.js サーバー用のパッケージに変えます。アプリのデプロイそのものは行いません([OpenNext のドキュメント](https://opennext.js.org/aws))。Azure 向けの対象はありません。
+- **Vercel** には、検証済みのアダプターがあります。Next.js のテストスイートを実行し、Next.js のチームが、メジャーリリースの前に調整します ²。AWS Amplify、Cloudflare、Netlify などは、独自の統合を持ち、Next.js は検証していません ²。
+
+## 出典
+
+1. Microsoft Learn: [Deploy Next.js websites on Azure Static Web Apps](https://learn.microsoft.com/azure/static-web-apps/nextjs) と [hybrid Next.js (preview)](https://learn.microsoft.com/azure/static-web-apps/deploy-nextjs-hybrid)(2026-11-20 に確認)。
+2. Next.js のドキュメント: [Deploying](https://nextjs.org/docs/app/getting-started/deploying)(2026-11-20 に確認)。
+3. Microsoft Learn: [Set scaling rules in Azure Container Apps](https://learn.microsoft.com/azure/container-apps/scale-app)。レプリカの最小数は、既定で 0 です。
+4. Next.js のドキュメント: [Self-hosting のキャッシュと ISR](https://nextjs.org/docs/app/guides/self-hosting)。既定では、キャッシュは、各 Next.js サーバーインスタンスのローカルのファイルシステムに保存されます。
