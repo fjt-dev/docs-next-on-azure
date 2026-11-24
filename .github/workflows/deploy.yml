@@ -1,0 +1,133 @@
+name: deploy
+
+# Builds the site and deploys it to the Function app of the site (next-on-azure.fjtd.dev). Runs on a
+# push to main and by hand. The infrastructure is not touched: it was created with `next-on-azure deploy`
+# and changes only by hand. Sign-in to Azure is OIDC (no stored secret): the federated credential
+# accepts tokens from the main branch of this repository only, and the identity is Contributor on the
+# resource group of the site only.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "content/**"
+      - "src/**"
+      - "scripts/**"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "next.config.*"
+      - "tsconfig.json"
+      - ".github/workflows/deploy.yml"
+  workflow_dispatch:
+
+# Read-only by default. Never switch this workflow to pull_request_target.
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+env:
+  CI: "true"
+
+jobs:
+  build:
+    name: build and package
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+          package-manager-cache: false
+
+      # pnpm is installed from npm at the version pinned in package.json ("packageManager").
+      - name: Install pnpm
+        run: npm install --global "pnpm@$(node -p "require('./package.json').packageManager.split('@')[1]")"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Type check
+        run: pnpm typecheck
+
+      - name: Build
+        run: pnpm build
+
+      - name: Check the links between pages
+        run: pnpm check:links
+
+      - name: Package for Azure
+        run: pnpm exec next-on-azure package --target azure
+
+      - name: Collect what the deployment needs
+        run: |
+          mkdir dist
+          cp .next-azure/app.zip .next/prerender-manifest.json dist/
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: site
+          path: dist
+          retention-days: 7
+
+  deploy:
+    name: deploy to Azure
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    # The token is issued to this job only; the job runs no code of the site or its dependencies.
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
+      AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      AZURE_RESOURCE_GROUP: ${{ vars.AZURE_RESOURCE_GROUP }}
+      AZURE_APP_NAME: ${{ vars.AZURE_APP_NAME }}
+    steps:
+      - name: Refuse any ref but main
+        if: github.ref != 'refs/heads/main'
+        run: |
+          echo "deploys run from main only" >&2
+          exit 1
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        with:
+          name: site
+          path: dist
+
+      - name: Sign in to Azure
+        run: bash scripts/ci/azure-login.sh
+
+      - name: Deploy the package
+        run: az functionapp deployment source config-zip -g "$AZURE_RESOURCE_GROUP" -n "$AZURE_APP_NAME" --src dist/app.zip --output none
+
+      - name: Wait for the app, then request every prerendered page once
+        run: |
+          host="$(az functionapp show -g "$AZURE_RESOURCE_GROUP" -n "$AZURE_APP_NAME" --query defaultHostName -o tsv)"
+          for attempt in $(seq 1 30); do
+            code="$(curl -s -o /dev/null -w '%{http_code}' --max-time 60 "https://${host}/en" || true)"
+            echo "attempt ${attempt}: HTTP ${code}"
+            [ "${code}" = "200" ] && break
+            sleep 10
+          done
+          [ "${code}" = "200" ] || { echo "the app did not answer 200" >&2; exit 1; }
+          failed=0
+          for route in $(jq -r '.routes | keys[]' dist/prerender-manifest.json | grep -v '^/_not-found$'); do
+            status="$(curl -s -o /dev/null -w '%{http_code}' --max-time 60 --max-redirs 0 "https://${host}${route}" || true)"
+            echo "${status} ${route}"
+            case "${status}" in 2??|3??) ;; *) failed=$((failed + 1)) ;; esac
+          done
+          echo "pages that failed: ${failed}"
+          [ "${failed}" = "0" ]
