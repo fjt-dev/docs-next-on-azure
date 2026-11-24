@@ -115,7 +115,7 @@ jobs:
 
       - name: Wait for the app, then request every prerendered page once
         run: |
-          host="$(az functionapp show -g "$AZURE_RESOURCE_GROUP" -n "$AZURE_APP_NAME" --query defaultHostName -o tsv)"
+          host="$(az functionapp show -g "$AZURE_RESOURCE_GROUP" -n "$AZURE_APP_NAME" --query properties.defaultHostName -o tsv)"
           for attempt in $(seq 1 30); do
             code="$(curl -s -o /dev/null -w '%{http_code}' --max-time 60 "https://${host}/en" || true)"
             echo "attempt ${attempt}: HTTP ${code}"
