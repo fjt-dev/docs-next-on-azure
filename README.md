@@ -31,6 +31,10 @@ The site is in English (`/en/...`) and Japanese (`/ja/...`). A path without a la
 
 The site installs `next-on-azure` from npm at a fixed version (`package.json`). To try an unreleased change, pack the package in its repository (`npm pack` in `packages/next-on-azure`) and install the tarball temporarily; do not commit that.
 
+## Deployment
+
+A push to `main` that changes the site starts `.github/workflows/deploy.yml`: it builds and packages the site, then deploys the zip to the Function app of the site and requests every prerendered page once. Sign-in to Azure is OIDC with the identity `noa-docs-deploy`, which is Contributor on the resource group of the site only; the workflow reads the repository variables `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, `AZURE_SUBSCRIPTION_ID`, `AZURE_RESOURCE_GROUP` and `AZURE_APP_NAME`. It does not change the infrastructure; run `next-on-azure deploy` by hand for that.
+
 ## Run it the way Azure does
 
 ```bash
